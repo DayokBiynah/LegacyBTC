@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Main vertical layout for the Restore Wallet screen. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp">
+
+    <!-- Identifies the purpose of the wallet recovery screen. -->
+    <TextView
+        android:id="@+id/restoreWalletTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Restore Bitcoin Wallet"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Explains how the recovery phrase is used. -->
+    <TextView
+        android:id="@+id/restoreWalletDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter the 12-word recovery phrase associated with your Bitcoin wallet."
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Accepts the 12-word mnemonic recovery phrase. -->
+    <EditText
+        android:id="@+id/recoveryPhraseInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter 12-word recovery phrase"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        android:gravity="top"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Starts the wallet reconstruction process. -->
+    <Button
+        android:id="@+id/restoreWalletButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Restore Wallet"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Displays the receiving address generated from
+         the restored deterministic Bitcoin wallet. -->
+    <TextView
+        android:id="@+id/restoredAddressText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Restored wallet address will appear here"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Returns the user to the previous screen. -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back" />
+
+</LinearLayout>

@@ -31,6 +31,13 @@
         <activity
             android:name=".OpenWalletActivity"
             android:exported="false" />
+
+        <!-- Registers the screen used to restore a Bitcoin wallet
+     from its recovery phrase. -->
+        <activity
+            android:name=".RestoreWalletActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

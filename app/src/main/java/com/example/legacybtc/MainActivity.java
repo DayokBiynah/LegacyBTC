@@ -94,17 +94,19 @@ public class MainActivity extends AppCompatActivity {
             startActivity(createWalletIntent);
         });
 
-        // Registers a click listener that executes when the user selects
-        // the Restore Wallet button.
+        // Executes when the user selects Restore Wallet.
         restoreWalletButton.setOnClickListener(view -> {
 
-            // Displays "Restore Wallet selected" at the bottom of the screen
-            // for a short period to confirm that the button click was detected.
-            Toast.makeText(
-                    MainActivity.this,
-                    "Restore Wallet selected",
-                    Toast.LENGTH_SHORT
-            ).show();
+            // Creates an Intent that opens the screen used to
+            // reconstruct a wallet from its recovery phrase.
+            Intent restoreWalletIntent =
+                    new Intent(
+                            MainActivity.this,
+                            RestoreWalletActivity.class
+                    );
+
+            // Opens RestoreWalletActivity.
+            startActivity(restoreWalletIntent);
         });
 
         // Executes when the user selects Open Existing Wallet.
