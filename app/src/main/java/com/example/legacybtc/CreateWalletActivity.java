@@ -27,6 +27,12 @@ import org.bitcoinj.base.ScriptType;
 // a Bitcoin wallet containing keys, addresses, and transactions.
 import org.bitcoinj.wallet.Wallet;
 
+// Imports TextView so the Activity can display
+// the generated wallet recovery phrase.
+import android.widget.TextView;
+
+
+
 /**
  * CreateWalletActivity controls the screen used to begin
  * the creation of a new LegacyBTC Bitcoin wallet.
@@ -48,6 +54,10 @@ public class CreateWalletActivity extends AppCompatActivity {
     // The Wallet object manages the deterministic key hierarchy,
     // receiving addresses, balances, and Bitcoin transactions.
     private Wallet bitcoinWallet;
+
+    // Stores a reference to the TextView used to display
+    // the generated wallet recovery phrase.
+    private TextView recoveryPhraseText;
 
 
     /**
@@ -78,6 +88,10 @@ public class CreateWalletActivity extends AppCompatActivity {
         // it to the Java variable.
         backButton = findViewById(R.id.backButton);
 
+        // Connects the recovery phrase TextView from the XML layout
+        // to its Java variable.
+        recoveryPhraseText = findViewById(R.id.recoveryPhraseText);
+
         // Executes when the user selects Generate Wallet.
         generateWalletButton.setOnClickListener(view -> {
 
@@ -104,6 +118,29 @@ public class CreateWalletActivity extends AppCompatActivity {
             // connected to the Bitcoin network.
             String receiveAddress =
                     bitcoinWallet.currentReceiveAddress().toString();
+
+
+            // Retrieves the mnemonic recovery words associated with the
+            // deterministic key chain of the newly generated Bitcoin wallet.
+            java.util.List<String> mnemonicWords =
+                    bitcoinWallet.getActiveKeyChain().getMnemonicCode();
+
+            // Checks that the wallet contains a mnemonic recovery phrase
+            // before attempting to display it.
+            if (mnemonicWords != null) {
+
+                // Combines the individual mnemonic words into a single
+                // space-separated recovery phrase for display.
+                String recoveryPhrase =
+                        String.join(" ", mnemonicWords);
+
+                // Places the generated recovery phrase inside the TextView.
+                recoveryPhraseText.setText(recoveryPhrase);
+
+                // Makes the recovery phrase visible after wallet generation.
+                recoveryPhraseText.setVisibility(TextView.VISIBLE);
+            }
+
 
             // Displays the generated Testnet Bitcoin address so the wallet
             // creation process can be verified during development.
