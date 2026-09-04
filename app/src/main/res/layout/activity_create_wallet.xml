@@ -48,6 +48,25 @@
         android:visibility="gone"
         android:layout_marginBottom="16dp" />
 
+    <!-- Displays the Bitcoin Testnet receiving address generated for the wallet. -->
+    <TextView
+        android:id="@+id/walletAddressText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wallet address will appear here"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Loads the previously saved encrypted Bitcoin wallet. -->
+    <Button
+        android:id="@+id/loadWalletButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Load Saved Wallet"
+        android:layout_marginBottom="16dp" />
+
     <!-- Returns the user to the previous screen. -->
     <Button
         android:id="@+id/backButton"
