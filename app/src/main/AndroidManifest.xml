@@ -25,6 +25,12 @@
             android:name=".CreateWalletActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Registers the screen used to open a Bitcoin wallet
+     already stored on the device. -->
+        <activity
+            android:name=".OpenWalletActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

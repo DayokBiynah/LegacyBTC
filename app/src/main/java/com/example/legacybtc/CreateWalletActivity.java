@@ -46,9 +46,6 @@ public class CreateWalletActivity extends AppCompatActivity {
     // Activity can respond when the user selects it.
     private Button generateWalletButton;
 
-    // Stores a reference to the Load Saved Wallet button so the
-    // Activity can respond when the user selects it.
-    private Button loadWalletButton;
 
     // Stores a reference to the Back button so the Activity can
     // return the user to the previous screen.
@@ -94,10 +91,6 @@ public class CreateWalletActivity extends AppCompatActivity {
         generateWalletButton =
                 findViewById(R.id.generateWalletButton);
 
-        // Finds the Load Saved Wallet button in the XML layout and
-        // connects it to the Java variable.
-        loadWalletButton =
-                findViewById(R.id.loadWalletButton);
 
         // Finds the Back button in the XML layout and connects
         // it to the Java variable.
@@ -209,50 +202,6 @@ public class CreateWalletActivity extends AppCompatActivity {
             ).show();
         });
 
-
-        // Executes when the user selects Load Saved Wallet.
-        loadWalletButton.setOnClickListener(view -> {
-
-            try {
-
-                // Decrypts and reconstructs the Bitcoin wallet previously
-                // saved in the application's private internal storage.
-                bitcoinWallet =
-                        WalletStorageManager.loadWallet(
-                                CreateWalletActivity.this
-                        );
-
-                // Retrieves the current receiving address from the
-                // reconstructed wallet.
-                String loadedAddress =
-                        bitcoinWallet.currentReceiveAddress().toString();
-
-                // Places the loaded wallet's receiving address on the screen
-                // so it can be compared with the originally generated address.
-                walletAddressText.setText(loadedAddress);
-
-                // Makes the loaded wallet address visible.
-                walletAddressText.setVisibility(TextView.VISIBLE);
-
-                // Displays confirmation that the encrypted wallet
-                // was successfully decrypted and reconstructed.
-                Toast.makeText(
-                        CreateWalletActivity.this,
-                        "Saved wallet loaded successfully.",
-                        Toast.LENGTH_LONG
-                ).show();
-
-            } catch (Exception exception) {
-
-                // Displays an error message if no saved wallet exists
-                // or if the stored wallet cannot be decrypted or loaded.
-                Toast.makeText(
-                        CreateWalletActivity.this,
-                        "Saved wallet could not be loaded.",
-                        Toast.LENGTH_LONG
-                ).show();
-            }
-        });
 
 
         // Executes when the user selects Back.

@@ -31,6 +31,15 @@
         android:text="Create Wallet"
         android:layout_marginBottom="16dp" />
 
+    <!-- Opens a Bitcoin wallet that has already been securely
+     stored on this device. -->
+    <Button
+        android:id="@+id/openWalletButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open Existing Wallet"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/restoreWalletButton"
         android:layout_width="match_parent"

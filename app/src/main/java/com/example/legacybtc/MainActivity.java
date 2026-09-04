@@ -39,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
     // event can be handled from Java.
     private Button restoreWalletButton;
 
+    // Stores a reference to the Open Existing Wallet button so the
+    // Activity can respond when the user selects it.
+    private Button openWalletButton;
+
+
     /**
      * Executes when MainActivity is created.
      *
@@ -68,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
         // its reference so MainActivity can respond when the button is clicked.
         restoreWalletButton = findViewById(R.id.restoreWalletButton);
 
+        // Connects the Open Existing Wallet button from the XML layout
+        // to its Java variable.
+        openWalletButton =
+                findViewById(R.id.openWalletButton);
+
+
         // Registers a click listener that executes when the user selects
         // the Create Wallet button.
         createWalletButton.setOnClickListener(view -> {
@@ -95,5 +106,21 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
         });
+
+        // Executes when the user selects Open Existing Wallet.
+        openWalletButton.setOnClickListener(view -> {
+
+            // Creates an Intent that opens the screen used to access
+            // a Bitcoin wallet already stored on the device.
+            Intent openWalletIntent =
+                    new Intent(
+                            MainActivity.this,
+                            OpenWalletActivity.class
+                    );
+
+            // Opens OpenWalletActivity.
+            startActivity(openWalletIntent);
+        });
+
     }
 }

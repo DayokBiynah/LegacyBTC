@@ -1,54 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- Main vertical layout for the Open Existing Wallet screen. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:padding="24dp">
 
-    <!-- Displays the title of the wallet creation screen. -->
+    <!-- Identifies the purpose of the screen. -->
     <TextView
-        android:id="@+id/createWalletTitle"
+        android:id="@+id/openWalletTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Bitcoin Wallet"
+        android:text="Open Existing Wallet"
         android:textSize="28sp"
         android:textStyle="bold"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Explains the purpose of the screen before wallet creation begins. -->
+    <!-- Explains that this screen opens a wallet already
+         stored securely on the device. -->
     <TextView
-        android:id="@+id/createWalletDescription"
+        android:id="@+id/openWalletDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create a new self-custodial Bitcoin wallet. A recovery phrase will be generated and used to restore access to the wallet."
+        android:text="Open a Bitcoin wallet that has already been securely saved on this device."
         android:textSize="16sp"
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
-    <!-- Starts the Bitcoin wallet creation process when selected. -->
+    <!-- Loads and decrypts the wallet stored by LegacyBTC. -->
     <Button
-        android:id="@+id/generateWalletButton"
+        android:id="@+id/openSavedWalletButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate Wallet"
+        android:text="Open Saved Wallet"
         android:layout_marginBottom="16dp" />
 
-    <!-- Displays the recovery phrase generated for the Bitcoin wallet. -->
-    <TextView
-        android:id="@+id/recoveryPhraseText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recovery phrase will appear here"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Displays the Bitcoin Testnet receiving address generated for the wallet. -->
+    <!-- Displays the receiving address belonging to
+         the successfully loaded Bitcoin wallet. -->
     <TextView
         android:id="@+id/walletAddressText"
         android:layout_width="match_parent"
@@ -58,7 +49,6 @@
         android:padding="16dp"
         android:visibility="gone"
         android:layout_marginBottom="16dp" />
-
 
     <!-- Returns the user to the previous screen. -->
     <Button
