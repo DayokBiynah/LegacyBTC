@@ -175,6 +175,14 @@ public class RestoreWalletActivity extends AppCompatActivity {
                                 ScriptType.P2WPKH
                         );
 
+                // Securely encrypts and saves the restored Bitcoin wallet
+                // as a separate wallet inside LegacyBTC's private storage.
+                WalletStorageManager.saveWallet(
+                        RestoreWalletActivity.this,
+                        restoredWallet
+                );
+
+
                 // Retrieves the current receiving address from
                 // the reconstructed Bitcoin wallet.
                 String restoredAddress =

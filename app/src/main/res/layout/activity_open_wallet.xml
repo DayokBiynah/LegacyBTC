@@ -5,8 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="24dp">
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="40dp">
 
     <!-- Identifies the purpose of the screen. -->
     <TextView
@@ -16,45 +18,47 @@
         android:text="Open Existing Wallet"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginTop="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Explains that this screen opens a wallet already
-         stored securely on the device. -->
+    <!-- Explains that the screen displays Bitcoin wallets
+         already stored securely on the device. -->
     <TextView
         android:id="@+id/openWalletDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Open a Bitcoin wallet that has already been securely saved on this device."
+        android:text="Select a Bitcoin wallet that has already been securely saved on this device."
         android:textSize="16sp"
         android:gravity="center"
-        android:layout_marginBottom="32dp" />
-
-    <!-- Loads and decrypts the wallet stored by LegacyBTC. -->
-    <Button
-        android:id="@+id/openSavedWalletButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Open Saved Wallet"
         android:layout_marginBottom="16dp" />
 
-    <!-- Displays the receiving address belonging to
-         the successfully loaded Bitcoin wallet. -->
-    <TextView
-        android:id="@+id/walletAddressText"
+    <!-- Provides a scrollable area for saved wallets while
+         keeping the Back button visible at the bottom. -->
+    <ScrollView
+        android:id="@+id/savedWalletsScrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Wallet address will appear here"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <!-- Contains the dynamically generated wallet rows. -->
+        <LinearLayout
+            android:id="@+id/savedWalletsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="12dp" />
+
+    </ScrollView>
 
     <!-- Returns the user to the previous screen. -->
     <Button
         android:id="@+id/backButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Back" />
+        android:text="Back"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp" />
 
 </LinearLayout>
