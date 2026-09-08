@@ -50,6 +50,10 @@ public class OpenWalletActivity extends AppCompatActivity {
     // can return the user to the previous screen.
     private Button backButton;
 
+    // Manages the Bitcoin Testnet connection for
+    // the wallet selected by the user.
+    private BitcoinNetworkManager bitcoinNetworkManager;
+
 
     /**
      * Executes when OpenWalletActivity is created.
@@ -70,6 +74,11 @@ public class OpenWalletActivity extends AppCompatActivity {
         // Loads activity_open_wallet.xml as the interface
         // controlled by this Activity.
         setContentView(R.layout.activity_open_wallet);
+
+        // Creates the network manager used to connect
+        // selected wallets to Bitcoin Testnet.
+        bitcoinNetworkManager =
+                new BitcoinNetworkManager();
 
 
         // Connects the saved-wallet container from the XML layout
@@ -261,12 +270,51 @@ public class OpenWalletActivity extends AppCompatActivity {
                 // Executes when the user selects this saved wallet.
                 walletButton.setOnClickListener(view -> {
 
-                    // Confirms which wallet was selected.
-                    Toast.makeText(
-                            OpenWalletActivity.this,
-                            "Wallet opened:\n" + walletAddress,
-                            Toast.LENGTH_LONG
-                    ).show();
+                    try {
+
+                        // Checks whether Bitcoin Testnet networking
+                        // has already been started.
+                        if (bitcoinNetworkManager.isNetworkStarted()) {
+
+                            // Prevents the same network service from
+                            // being started repeatedly.
+                            Toast.makeText(
+                                    OpenWalletActivity.this,
+                                    "Bitcoin Testnet connection already started.",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            return;
+                        }
+
+
+                        // Starts Bitcoin Testnet networking for
+                        // the wallet selected by the user.
+                        bitcoinNetworkManager.start(
+                                OpenWalletActivity.this,
+                                wallet
+                        );
+
+
+                        // Informs the user that LegacyBTC has started
+                        // the Bitcoin Testnet connection process.
+                        Toast.makeText(
+                                OpenWalletActivity.this,
+                                "Connecting wallet to Bitcoin Testnet...",
+                                Toast.LENGTH_LONG
+                        ).show();
+
+
+                    } catch (Exception exception) {
+
+                        // Displays an error if Bitcoin networking
+                        // could not be started for the selected wallet.
+                        Toast.makeText(
+                                OpenWalletActivity.this,
+                                "Bitcoin network connection failed.",
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
                 });
 
 
@@ -435,5 +483,24 @@ public class OpenWalletActivity extends AppCompatActivity {
                 );
             }
         }
+
+
     }
+
+    /**
+     * Stops Bitcoin networking when this Activity
+     * is permanently destroyed.
+     */
+    @Override
+    protected void onDestroy() {
+
+        // Stops active peer connections and releases
+        // SPV blockchain storage resources.
+        if (bitcoinNetworkManager != null) {
+            bitcoinNetworkManager.stop();
+        }
+
+        super.onDestroy();
+    }
+
 }
