@@ -532,4 +532,61 @@ public class WalletStorageManager {
         return context.deleteFile(walletFileName);
     }
 
+    /**
+     * Checks whether a wallet with the same current receiving
+     * address is already stored by LegacyBTC.
+     *
+     * This prevents the same wallet from being saved repeatedly
+     * during the current development stage.
+     *
+     * @param context provides access to application storage
+     * @param wallet  the wallet being checked
+     * @return true if a matching wallet is already saved
+     */
+    public static boolean walletAlreadySaved(
+            Context context,
+            Wallet wallet
+    ) {
+
+        // Uses the wallet's current receiving address as the
+        // identifier for duplicate detection at this stage.
+        String walletAddress =
+                wallet.currentReceiveAddress().toString();
+
+        // Retrieves all encrypted wallet files currently stored.
+        String[] walletFiles =
+                getSavedWalletFiles(context);
+
+        // Checks each saved wallet individually.
+        for (String walletFileName : walletFiles) {
+
+            try {
+
+                // Decrypts and reconstructs the saved wallet.
+                Wallet savedWallet =
+                        loadWallet(
+                                context,
+                                walletFileName
+                        );
+
+                // Retrieves the saved wallet's current receiving address.
+                String savedWalletAddress =
+                        savedWallet.currentReceiveAddress().toString();
+
+                // A matching address means the wallet is already stored.
+                if (walletAddress.equals(savedWalletAddress)) {
+                    return true;
+                }
+
+            } catch (Exception exception) {
+
+                // A wallet file that cannot be loaded is skipped so
+                // other stored wallets can still be checked.
+            }
+        }
+
+        // No matching wallet was found.
+        return false;
+    }
+
 }

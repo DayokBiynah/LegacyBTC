@@ -175,12 +175,38 @@ public class RestoreWalletActivity extends AppCompatActivity {
                                 ScriptType.P2WPKH
                         );
 
-                // Securely encrypts and saves the restored Bitcoin wallet
-                // as a separate wallet inside LegacyBTC's private storage.
-                WalletStorageManager.saveWallet(
+                // Checks whether this Bitcoin wallet is already stored
+                // before creating another encrypted wallet file.
+                if (WalletStorageManager.walletAlreadySaved(
                         RestoreWalletActivity.this,
                         restoredWallet
-                );
+                )) {
+
+                    // Informs the user that the restored wallet already
+                    // exists in LegacyBTC's encrypted wallet storage.
+                    Toast.makeText(
+                            RestoreWalletActivity.this,
+                            "This wallet is already saved.",
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                } else {
+
+                    // Encrypts and saves the restored wallet only when
+                    // an identical wallet is not already stored.
+                    WalletStorageManager.saveWallet(
+                            RestoreWalletActivity.this,
+                            restoredWallet
+                    );
+
+                    // Confirms that the restored wallet was successfully
+                    // added to LegacyBTC's encrypted wallet storage.
+                    Toast.makeText(
+                            RestoreWalletActivity.this,
+                            "Wallet restored and saved.",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
 
 
                 // Retrieves the current receiving address from
