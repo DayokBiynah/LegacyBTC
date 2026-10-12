@@ -1,70 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="24dp">
-
-    <!-- Displays the title of the wallet creation screen. -->
-    <TextView
-        android:id="@+id/createWalletTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create Bitcoin Wallet"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Explains the purpose of the screen before wallet creation begins. -->
-    <TextView
-        android:id="@+id/createWalletDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create a new self-custodial Bitcoin wallet. A recovery phrase will be generated and used to restore access to the wallet."
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginBottom="32dp" />
-
-    <!-- Starts the Bitcoin wallet creation process when selected. -->
-    <Button
-        android:id="@+id/generateWalletButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Generate Wallet"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Displays the recovery phrase generated for the Bitcoin wallet. -->
-    <TextView
-        android:id="@+id/recoveryPhraseText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recovery phrase will appear here"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Displays the Bitcoin Testnet receiving address generated for the wallet. -->
-    <TextView
-        android:id="@+id/walletAddressText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Wallet address will appear here"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
-
-
-    <!-- Returns the user to the previous screen. -->
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back" />
-
-</LinearLayout>
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/setup_title" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/setup_description" />
+        <LinearLayout android:id="@+id/createPath" style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/create_new_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/create_description" />
+            <Button android:id="@+id/generateWalletButton" style="@style/UiButtonPrimary" android:text="@string/create_wallet" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/restorePath" style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/restore_existing_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/restore_description" />
+            <TextView style="@style/UiLabel" android:text="@string/phrase_hint" android:labelFor="@id/recoveryPhraseInput" />
+            <EditText android:id="@+id/recoveryPhraseInput" style="@style/UiInput" android:inputType="textMultiLine|textNoSuggestions" android:importantForAutofill="no" android:saveEnabled="false" android:minLines="3" android:gravity="top|start" />
+            <TextView style="@style/UiLabel" android:text="@string/passphrase_hint" android:labelFor="@id/passphraseInput" />
+            <EditText android:id="@+id/passphraseInput" style="@style/UiInput" android:inputType="textPassword" android:importantForAutofill="no" android:saveEnabled="false" />
+            <Button android:id="@+id/restoreWalletButton" style="@style/UiButtonSecondary" android:text="@string/restore_wallet" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/backupSection" style="@style/UiCard" android:visibility="gone">
+            <TextView style="@style/UiSection" android:text="@string/backup_heading" />
+            <TextView style="@style/UiSupporting" android:text="@string/backup_description" />
+            <TextView android:id="@+id/recoveryPhraseText" style="@style/UiAddress" android:text="@string/empty" android:saveEnabled="false" android:textIsSelectable="false" />
+            <TextView style="@style/UiNotice" android:text="@string/phrase_security_warning" />
+            <CheckBox android:id="@+id/backupConfirmed" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:text="@string/backup_confirmed" android:textColor="@color/ui_text" android:textSize="16sp" android:visibility="gone" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/walletReadySection" style="@style/UiCard" android:visibility="gone">
+            <TextView style="@style/UiSection" android:text="@string/wallet_ready_heading" />
+            <TextView android:id="@+id/walletReadyDescription" style="@style/UiCaption" android:text="@string/restore_saved" />
+            <TextView style="@style/UiLabel" android:text="@string/receiving_address_label" />
+            <TextView android:id="@+id/walletAddressText" style="@style/UiAddress" android:text="@string/address_placeholder" />
+        </LinearLayout>
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/continueButton" style="@style/UiButtonPrimary" android:text="@string/continue_label" android:visibility="gone" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

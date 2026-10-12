@@ -1,506 +1,74 @@
 package com.example.legacybtc;
 
-// Imports Bundle so the Activity can receive saved state information
-// when Android creates or recreates this screen.
 import android.os.Bundle;
-
-// Imports Button so the Activity can create and control
-// wallet selection and deletion buttons.
 import android.widget.Button;
-
-// Imports LinearLayout so wallet entries can be added
-// dynamically to the Open Existing Wallet screen.
 import android.widget.LinearLayout;
-
-// Imports TextView so the Activity can display wallet
-// addresses and status information.
 import android.widget.TextView;
-
-// Imports Toast so the Activity can display status
-// and error messages to the user.
-import android.widget.Toast;
-
-// Provides the Android Activity functionality used by this screen.
-import androidx.appcompat.app.AppCompatActivity;
-
-// Provides a confirmation dialog before a wallet
-// is permanently removed from local application storage.
 import androidx.appcompat.app.AlertDialog;
-
-// Imports the bitcoinj Wallet class so saved Bitcoin
-// wallets can be reconstructed from encrypted storage.
-import org.bitcoinj.wallet.Wallet;
-
+import java.util.ArrayList;
 
 /**
- * OpenWalletActivity controls the screen used to view,
- * open, and delete Bitcoin wallets stored on the device.
- *
- * The Activity retrieves all encrypted LegacyBTC wallet files,
- * loads each wallet, displays its receiving address, and allows
- * the user to select or remove a specific saved wallet.
+ * I list only encrypted wallets belonging to this build's network, decrypt public receiving
+ * addresses on the worker, and show unreadable entries without destroying them. Opening passes
+ * the selected filename to the dashboard. Local deletion requires a warning and device
+ * authentication; deleting a file does not cancel a Bitcoin inheritance output.
  */
-public class OpenWalletActivity extends AppCompatActivity {
-
-    // Stores a reference to the layout used to display
-    // all encrypted Bitcoin wallets saved by LegacyBTC.
-    private LinearLayout savedWalletsContainer;
-
-    // Stores a reference to the Back button so the Activity
-    // can return the user to the previous screen.
-    private Button backButton;
-
-    // Manages the Bitcoin Testnet connection for
-    // the wallet selected by the user.
-    private BitcoinNetworkManager bitcoinNetworkManager;
-
-
+public class OpenWalletActivity extends WalletActivity {
     /**
-     * Executes when OpenWalletActivity is created.
-     *
-     * This method loads the XML layout, connects its controls
-     * to Java variables, and displays all encrypted wallets
-     * currently stored by LegacyBTC.
-     *
-     * @param savedInstanceState contains saved Activity state
-     *                           if Android recreates the screen
+     * Android calls this lifecycle method when creating or recreating the component. I
+     * initialize the parent behavior, connect Java listeners to the XML controls or register
+     * application callbacks, and restore only the workflow state explicitly handled below.
+     * Button callbacks capture input on the UI thread and delegate expensive wallet work to
+     * the service. Errors are displayed instead of silently continuing.
+     * @param state Bundle supplied by the calling workflow as described above
      */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        // Initializes the Activity through the Android lifecycle.
-        super.onCreate(savedInstanceState);
-
-        // Loads activity_open_wallet.xml as the interface
-        // controlled by this Activity.
-        setContentView(R.layout.activity_open_wallet);
-
-        // Creates the network manager used to connect
-        // selected wallets to Bitcoin Testnet.
-        bitcoinNetworkManager =
-                new BitcoinNetworkManager();
-
-
-        // Connects the saved-wallet container from the XML layout
-        // to its Java variable.
-        savedWalletsContainer =
-                findViewById(R.id.savedWalletsContainer);
-
-        // Connects the Back button from the XML layout
-        // to its Java variable.
-        backButton =
-                findViewById(R.id.backButton);
-
-
-        // Loads and displays all encrypted wallets stored
-        // inside LegacyBTC's private application storage.
-        displaySavedWallets();
-
-
-        // Executes when the user selects Back.
-        backButton.setOnClickListener(view -> {
-
-            // Closes OpenWalletActivity and returns
-            // the user to MainActivity.
-            finish();
-        });
+    @Override protected void onCreate(Bundle state) {
+        super.onCreate(state); setContentView(R.layout.activity_open_wallet);
+        findViewById(R.id.backButton).setOnClickListener(view -> finish());
     }
-
-
     /**
-     * Retrieves every encrypted LegacyBTC wallet file and
-     * creates a selectable screen entry for each wallet.
-     *
-     * Each wallet entry contains a button for opening the wallet
-     * and a separate button for deleting its encrypted file.
+     * Android calls this when the screen returns to the foreground. I invoke parent lifecycle
+     * handling and start the public-data refresh or wallet-list behavior shown below. Secured
+     * screens enforce the application unlock state. The paired pause method stops periodic
+     * callbacks so background screens do not keep refreshing.
+     */
+    @Override protected void onResume() { super.onResume(); displaySavedWallets(); }
+    /**
+     * I loop over this network's encrypted files on the worker, loading each public address or
+     * retaining an unreadable entry. On the main thread I inflate rows and attach Open and
+     * authenticated Delete listeners. The empty-state view explains when no wallets exist.
      */
     private void displaySavedWallets() {
-
-        // Removes any existing views before rebuilding the wallet list.
-        // This prevents duplicate visual entries when the list is refreshed.
-        savedWalletsContainer.removeAllViews();
-
-
-        // Retrieves the filenames of every encrypted wallet
-        // currently stored by LegacyBTC.
-        String[] walletFiles =
-                WalletStorageManager.getSavedWalletFiles(
-                        OpenWalletActivity.this
-                );
-
-
-        // Displays a message when no saved wallets are found.
-        if (walletFiles.length == 0) {
-
-            // Creates a TextView used to inform the user
-            // that no encrypted wallets are currently stored.
-            TextView noWalletsText =
-                    new TextView(
-                            OpenWalletActivity.this
-                    );
-
-            // Sets the informational message displayed on screen.
-            noWalletsText.setText(
-                    "No saved wallets found."
-            );
-
-            // Sets the text size for readability.
-            noWalletsText.setTextSize(16);
-
-            // Adds spacing around the message.
-            noWalletsText.setPadding(
-                    16,
-                    16,
-                    16,
-                    16
-            );
-
-            // Adds the message to the saved-wallet container.
-            savedWalletsContainer.addView(
-                    noWalletsText
-            );
-
-            return;
-        }
-
-
-        // Processes each encrypted wallet file individually.
-        for (String walletFileName : walletFiles) {
-
-            try {
-
-                // Decrypts and reconstructs the wallet associated
-                // with the current encrypted wallet file.
-                Wallet wallet =
-                        WalletStorageManager.loadWallet(
-                                OpenWalletActivity.this,
-                                walletFileName
-                        );
-
-
-                // Retrieves the wallet's current Bitcoin
-                // receiving address.
-                String walletAddress =
-                        wallet.currentReceiveAddress()
-                                .toString();
-
-
-                /*
-                 * Creates a horizontal layout representing one wallet.
-                 *
-                 * The row contains:
-                 * 1. A button displaying the wallet address.
-                 * 2. A Delete button for removing that wallet.
-                 */
-                LinearLayout walletRow =
-                        new LinearLayout(
-                                OpenWalletActivity.this
-                        );
-
-                // Places the wallet controls beside each other.
-                walletRow.setOrientation(
-                        LinearLayout.HORIZONTAL
-                );
-
-                // Vertically centers the wallet and Delete buttons
-                // so both controls align evenly within the row.
-                walletRow.setGravity(
-                        android.view.Gravity.CENTER_VERTICAL
-                );
-
-
-                // Defines the size and spacing of the wallet row.
-                LinearLayout.LayoutParams rowLayoutParameters =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                        );
-
-                // Adds space below each wallet entry.
-                rowLayoutParameters.setMargins(
-                        0,
-                        0,
-                        0,
-                        16
-                );
-
-                // Applies the layout settings to the wallet row.
-                walletRow.setLayoutParams(
-                        rowLayoutParameters
-                );
-
-
-                // Creates the button used to represent
-                // and select this saved Bitcoin wallet.
-                Button walletButton =
-                        new Button(
-                                OpenWalletActivity.this
-                        );
-
-                // Displays the wallet receiving address so the
-                // user can identify which wallet is being opened.
-                walletButton.setText(
-                        walletAddress
-                );
-
-
-                // Gives the wallet button most of the available row width
-                // while leaving space for the Delete button.
-                LinearLayout.LayoutParams walletButtonParameters =
-                        new LinearLayout.LayoutParams(
-                                0,
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                1
-                        );
-
-                // Adds spacing between the wallet button
-                // and the Delete button.
-                walletButtonParameters.setMargins(
-                        0,
-                        0,
-                        12,
-                        0
-                );
-
-                walletButton.setLayoutParams(
-                        walletButtonParameters
-                );
-
-
-                // Executes when the user selects this saved wallet.
-                walletButton.setOnClickListener(view -> {
-
-                    try {
-
-                        // Checks whether Bitcoin Testnet networking
-                        // has already been started.
-                        if (bitcoinNetworkManager.isNetworkStarted()) {
-
-                            // Prevents the same network service from
-                            // being started repeatedly.
-                            Toast.makeText(
-                                    OpenWalletActivity.this,
-                                    "Bitcoin Testnet connection already started.",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
-                            return;
-                        }
-
-
-                        // Starts Bitcoin Testnet networking for
-                        // the wallet selected by the user.
-                        bitcoinNetworkManager.start(
-                                OpenWalletActivity.this,
-                                wallet
-                        );
-
-
-                        // Informs the user that LegacyBTC has started
-                        // the Bitcoin Testnet connection process.
-                        Toast.makeText(
-                                OpenWalletActivity.this,
-                                "Connecting wallet to Bitcoin Testnet...",
-                                Toast.LENGTH_LONG
-                        ).show();
-
-
-                    } catch (Exception exception) {
-
-                        // Displays an error if Bitcoin networking
-                        // could not be started for the selected wallet.
-                        Toast.makeText(
-                                OpenWalletActivity.this,
-                                "Bitcoin network connection failed.",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                });
-
-
-                // Creates the button used to remove this
-                // specific wallet from device storage.
-                Button deleteButton =
-                        new Button(
-                                OpenWalletActivity.this
-                        );
-
-                // Labels the wallet deletion action.
-                deleteButton.setText(
-                        "Delete"
-                );
-
-
-                // Keeps the Delete button at its natural width
-                // while aligning it with the wallet button.
-                LinearLayout.LayoutParams deleteButtonParameters =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                        );
-
-                deleteButton.setLayoutParams(
-                        deleteButtonParameters
-                );
-
-
-                // Executes when the user selects Delete.
-                deleteButton.setOnClickListener(view -> {
-
-                    /*
-                     * Creates a confirmation dialog before deletion.
-                     *
-                     * This prevents an accidental button press from
-                     * immediately removing the encrypted wallet file.
-                     */
-                    new AlertDialog.Builder(
-                            OpenWalletActivity.this
-                    )
-                            .setTitle(
-                                    "Delete Wallet"
-                            )
-
-                            .setMessage(
-                                    "Remove this wallet from this device?"
-                            )
-
-                            // Defines the action performed when
-                            // the user confirms deletion.
-                            .setPositiveButton(
-                                    "Delete",
-                                    (dialog, which) -> {
-
-                                        /*
-                                         * Deletes only the encrypted file
-                                         * belonging to this wallet.
-                                         *
-                                         * Other saved wallets are not affected.
-                                         */
-                                        boolean deleted =
-                                                WalletStorageManager.deleteWallet(
-                                                        OpenWalletActivity.this,
-                                                        walletFileName
-                                                );
-
-
-                                        // Checks whether Android successfully
-                                        // removed the encrypted wallet file.
-                                        if (deleted) {
-
-                                            // Removes the wallet row from the
-                                            // visible wallet list immediately.
-                                            savedWalletsContainer.removeView(
-                                                    walletRow
-                                            );
-
-                                            // Confirms successful local deletion.
-                                            Toast.makeText(
-                                                    OpenWalletActivity.this,
-                                                    "Wallet deleted.",
-                                                    Toast.LENGTH_LONG
-                                            ).show();
-
-
-                                            /*
-                                             * Checks whether any saved wallets
-                                             * remain after the deletion.
-                                             *
-                                             * If the deleted wallet was the last
-                                             * wallet, the screen is rebuilt so
-                                             * "No saved wallets found." appears.
-                                             */
-                                            String[] remainingWalletFiles =
-                                                    WalletStorageManager
-                                                            .getSavedWalletFiles(
-                                                                    OpenWalletActivity.this
-                                                            );
-
-                                            if (remainingWalletFiles.length == 0) {
-
-                                                displaySavedWallets();
-                                            }
-
-                                        } else {
-
-                                            // Displays an error if Android
-                                            // could not delete the wallet file.
-                                            Toast.makeText(
-                                                    OpenWalletActivity.this,
-                                                    "Wallet could not be deleted.",
-                                                    Toast.LENGTH_LONG
-                                            ).show();
-                                        }
-                                    }
-                            )
-
-                            // Closes the dialog without deleting anything.
-                            .setNegativeButton(
-                                    "Cancel",
-                                    null
-                            )
-
-                            // Displays the completed confirmation dialog.
-                            .show();
-                });
-
-
-                // Adds the wallet selection button
-                // to this wallet's horizontal row.
-                walletRow.addView(
-                        walletButton
-                );
-
-                // Adds the Delete button beside the
-                // wallet selection button.
-                walletRow.addView(
-                        deleteButton
-                );
-
-                // Adds the complete wallet row to the
-                // visible saved-wallet list.
-                savedWalletsContainer.addView(
-                        walletRow
-                );
-
-
-            } catch (Exception exception) {
-
-                // Creates an error message if a particular encrypted
-                // wallet file cannot be decrypted or reconstructed.
-                TextView errorText =
-                        new TextView(
-                                OpenWalletActivity.this
-                        );
-
-                // Explains that one stored wallet could not be opened.
-                errorText.setText(
-                        "A saved wallet could not be opened."
-                );
-
-                // Adds the error message to the wallet list.
-                savedWalletsContainer.addView(
-                        errorText
-                );
+        work(() -> {
+            ArrayList<String[]> entries = new ArrayList<>();
+            for (String file : WalletStorageManager.getSavedWalletFiles(this)) {
+                try { entries.add(new String[]{file, WalletStorageManager.loadWallet(this, file).currentReceiveAddress().toString()}); }
+                catch (Exception error) { entries.add(new String[]{file, "Unreadable wallet — restore from recovery words"}); }
             }
-        }
-
-
+            return entries;
+        }, entries -> {
+            LinearLayout container = findViewById(R.id.savedWalletsContainer);
+            container.removeAllViews();
+            ((TextView) findViewById(R.id.networkStatusText)).setText(R.string.testnet_only);
+            if (entries.isEmpty()) {
+                container.addView(WalletUi.empty(container, R.string.no_wallets));
+            }
+            for (String[] entry : entries) {
+                android.view.View row = getLayoutInflater().inflate(R.layout.item_saved_wallet, container, false);
+                ((TextView) row.findViewById(R.id.walletNameText)).setText(WalletUi.walletName(this, entry[0]));
+                ((TextView) row.findViewById(R.id.savedAddressText)).setText(entry[1]);
+                Button open = row.findViewById(R.id.openSavedWalletButton);
+                open.setOnClickListener(view -> dashboard(entry[0]));
+                Button delete = row.findViewById(R.id.deleteSavedWalletButton);
+                delete.setOnClickListener(view -> new AlertDialog.Builder(this).setTitle(R.string.delete_wallet)
+                        .setMessage(R.string.delete_warning).setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.delete, (dialog, which) -> authenticate(() ->
+                                work(() -> service.deleteWallet(entry[0]), deleted -> {
+                                    if (!deleted) showError("Wallet could not be deleted.");
+                                    displaySavedWallets();
+                                }))).show());
+                container.addView(row);
+            }
+        });
     }
-
-    /**
-     * Stops Bitcoin networking when this Activity
-     * is permanently destroyed.
-     */
-    @Override
-    protected void onDestroy() {
-
-        // Stops active peer connections and releases
-        // SPV blockchain storage resources.
-        if (bitcoinNetworkManager != null) {
-            bitcoinNetworkManager.stop();
-        }
-
-        super.onDestroy();
-    }
-
 }

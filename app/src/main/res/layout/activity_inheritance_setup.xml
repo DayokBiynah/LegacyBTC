@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/inheritance_setup" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/inheritance_description" />
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/beneficiary_section" />
+            <TextView style="@style/UiCaption" android:text="@string/beneficiary_setup_helper" />
+            <TextView style="@style/UiLabel" android:text="@string/owner_name" android:labelFor="@id/ownerNameInput" />
+            <EditText android:id="@+id/ownerNameInput" style="@style/UiInput" android:inputType="textPersonName" android:importantForAutofill="no" android:text="@string/default_owner" />
+            <TextView style="@style/UiLabel" android:text="@string/beneficiary_name" android:labelFor="@id/beneficiaryNameInput" />
+            <EditText android:id="@+id/beneficiaryNameInput" style="@style/UiInput" android:inputType="textPersonName" android:importantForAutofill="no" />
+            <TextView style="@style/UiLabel" android:text="@string/beneficiary_address" android:labelFor="@id/beneficiaryAddressInput" />
+            <EditText android:id="@+id/beneficiaryAddressInput" style="@style/UiInput" android:inputType="textNoSuggestions" android:importantForAutofill="no" />
+            <TextView style="@style/UiLabel" android:text="@string/beneficiary_key" android:labelFor="@id/beneficiaryKeyInput" />
+            <EditText android:id="@+id/beneficiaryKeyInput" style="@style/UiInput" android:inputType="textNoSuggestions" android:importantForAutofill="no" />
+            <Button android:id="@+id/addBeneficiaryButton" style="@style/UiButtonSecondary" android:text="@string/add_beneficiary" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/inheritance_details_heading" />
+            <TextView style="@style/UiLabel" android:text="@string/inheritance_amount" android:labelFor="@id/inheritanceAmountInput" />
+            <EditText android:id="@+id/inheritanceAmountInput" style="@style/UiInput" android:inputType="numberDecimal" android:importantForAutofill="no" />
+            <TextView style="@style/UiLabel" android:text="@string/inheritance_hours" android:labelFor="@id/periodInput" />
+            <EditText android:id="@+id/periodInput" style="@style/UiInput" android:inputType="number" android:importantForAutofill="no" />
+            <TextView style="@style/UiCaption" android:text="@string/period_helper" />
+            <Button android:id="@+id/setPeriodButton" style="@style/UiButtonSecondary" android:text="@string/set_period" />
+            <Button android:id="@+id/savePlanButton" style="@style/UiButtonPrimary" android:text="@string/save_plan" />
+            <Button android:id="@+id/updatePlanButton" style="@style/UiButtonSecondary" android:text="@string/update_plan" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/plan_status_heading" />
+            <TextView android:id="@+id/planSummaryText" style="@style/UiSupporting" android:text="@string/no_plan" />
+            <TextView style="@style/UiLabel" android:text="@string/fee_hint" android:labelFor="@id/feeInput" />
+            <EditText android:id="@+id/feeInput" style="@style/UiInput" android:inputType="number" android:importantForAutofill="no" android:text="@string/default_fee" />
+            <Button android:id="@+id/fundPlanButton" style="@style/UiButtonPrimary" android:text="@string/fund_plan" />
+            <Button android:id="@+id/recoveryButton" style="@style/UiButtonSecondary" android:text="@string/inheritance_status" />
+            <Button android:id="@+id/cancelPlanButton" style="@style/UiButtonDestructive" android:text="@string/cancel_plan" />
+        </LinearLayout>
+        <TextView style="@style/UiNotice" android:text="@string/timelock_warning" />
+        <TextView android:id="@+id/plansTitle" style="@style/UiSection" android:text="@string/saved_plans" />
+        <LinearLayout android:id="@+id/plansContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

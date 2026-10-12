@@ -1,592 +1,202 @@
 package com.example.legacybtc;
 
-// Provides access to Android application storage.
 import android.content.Context;
-
-// Provides access to Android's secure hardware-backed key storage system.
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-
-// Provides byte-array streams so bitcoinj wallet data can be
-// processed in memory without creating an unencrypted wallet file.
+import android.util.AtomicFile;
+import org.bitcoinj.wallet.Wallet;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
-// Provides file input and output functionality for encrypted wallet files.
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
-
-// Provides safer structured reading of the initialization vector
-// and encrypted wallet bytes from storage.
-import java.io.DataInputStream;
-
-// Provides access to cryptographic keys stored in Android Keystore.
 import java.security.KeyStore;
-
-// Generates unique identifiers for each wallet saved by LegacyBTC.
+import java.util.Arrays;
 import java.util.UUID;
 
-// Generates the AES encryption key used to protect wallet files.
-import javax.crypto.KeyGenerator;
-
-// Performs AES encryption and decryption operations.
-import javax.crypto.Cipher;
-
-// Represents the AES secret key stored inside Android Keystore.
-import javax.crypto.SecretKey;
-
-// Provides the initialization vector information required by AES-GCM.
-import javax.crypto.spec.GCMParameterSpec;
-
-// Imports the bitcoinj Wallet class so wallet data can be
-// serialized, encrypted, decrypted, and reconstructed.
-import org.bitcoinj.wallet.Wallet;
-
-
 /**
- * WalletStorageManager securely stores and loads LegacyBTC
- * Bitcoin wallets inside the application's private Android storage.
- *
- * Each wallet is assigned a unique identifier and stored in its own
- * encrypted file so multiple wallets can exist without overwriting
- * previously saved wallets.
- *
- * Wallet data is serialized by bitcoinj, encrypted using AES-GCM,
- * and protected by an AES key stored in Android Keystore.
+ * I preserve multiple bitcoinj wallets as authenticated ciphertext in Android private storage.
+ * Android Keystore supplies the device-bound AES key and AtomicFile retains the previous file
+ * if replacement fails. Mainnet uses a distinct filename prefix; the existing Testnet format
+ * remains readable without converting any wallet. Plain serialized bytes are cleared after
+ * loading or saving, although Java and bitcoinj may retain their own in-memory copies.
  */
-public class WalletStorageManager {
-
-    // Name used to identify the LegacyBTC encryption key
-    // inside Android Keystore.
-    private static final String KEY_ALIAS =
-            "LegacyBTCWalletEncryptionKey";
-
-    // Prefix added to every encrypted wallet filename.
-    private static final String WALLET_FILE_PREFIX =
-            "legacybtc_wallet_";
-
-    // File extension used for encrypted LegacyBTC wallet files.
-    private static final String WALLET_FILE_EXTENSION =
-            ".enc";
-
-    // Identifies Android Keystore as the secure key provider.
-    private static final String ANDROID_KEYSTORE =
-            "AndroidKeyStore";
-
-
+public final class WalletStorageManager {
+    private static final String KEY_ALIAS = "LegacyBTCWalletEncryptionKey";
+    // I keep the existing Testnet names readable. Mainnet gets a distinct prefix; neither
+    // build migrates, converts, or lists the other network's encrypted wallet files.
+    private static final String PREFIX = BuildConfig.MAINNET ? "legacybtc_wallet_mainnet_" : "legacybtc_wallet_", EXTENSION = ".enc";
+    private WalletStorageManager() { }
     /**
-     * Creates the AES encryption key if it does not already exist.
-     *
-     * The key is generated and stored inside Android Keystore instead
-     * of being written directly into application storage.
-     *
-     * @throws Exception if the encryption key cannot be created or accessed
+     * I open AndroidKeyStore and retrieve the application AES key. When creating a new
+     * envelope, a missing alias generates AES-256 with GCM through the platform KeyGenerator.
+     * Loading never creates a replacement for a missing key because it could not decrypt old
+     * files; the caller must restore from recovery information.
+     * @param create boolean supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
+     * @return the device-bound AES SecretKey supplied by Android Keystore
      */
-    private static void createEncryptionKeyIfNeeded() throws Exception {
-
-        // Opens Android Keystore so LegacyBTC can determine whether
-        // its wallet encryption key already exists.
-        KeyStore keyStore =
-                KeyStore.getInstance(ANDROID_KEYSTORE);
-
-        keyStore.load(null);
-
-        // Stops here when the encryption key already exists.
-        if (keyStore.containsAlias(KEY_ALIAS)) {
-            return;
+    private static SecretKey getKey(boolean create) throws Exception {
+        KeyStore store = KeyStore.getInstance("AndroidKeyStore");
+        store.load(null);
+        if (!store.containsAlias(KEY_ALIAS)) {
+            if (!create) throw new IllegalStateException("Encryption key unavailable. Restore from your recovery phrase.");
+            KeyGenerator generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            generator.init(new KeyGenParameterSpec.Builder(KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build());
+            generator.generateKey();
         }
-
-        // Creates a generator for a 256-bit AES encryption key
-        // that will be stored inside Android Keystore.
-        KeyGenerator keyGenerator =
-                KeyGenerator.getInstance(
-                        KeyProperties.KEY_ALGORITHM_AES,
-                        ANDROID_KEYSTORE
-                );
-
-        /*
-         * Defines the permitted uses and cryptographic properties
-         * of the LegacyBTC wallet encryption key.
-         *
-         * PURPOSE_ENCRYPT and PURPOSE_DECRYPT allow the same key
-         * to protect and recover wallet data.
-         *
-         * GCM provides authenticated encryption so unauthorized
-         * modification of encrypted wallet data can be detected.
-         */
-        KeyGenParameterSpec keySpecification =
-                new KeyGenParameterSpec.Builder(
-                        KEY_ALIAS,
-                        KeyProperties.PURPOSE_ENCRYPT
-                                | KeyProperties.PURPOSE_DECRYPT
-                )
-                        .setBlockModes(
-                                KeyProperties.BLOCK_MODE_GCM
-                        )
-                        .setEncryptionPaddings(
-                                KeyProperties.ENCRYPTION_PADDING_NONE
-                        )
-                        .setKeySize(256)
-                        .build();
-
-        // Applies the encryption requirements to the key generator.
-        keyGenerator.init(keySpecification);
-
-        // Generates the AES key and stores it inside Android Keystore.
-        keyGenerator.generateKey();
+        return ((KeyStore.SecretKeyEntry) store.getEntry(KEY_ALIAS, null)).getSecretKey();
     }
-
-
     /**
-     * Creates a unique encrypted filename for a Bitcoin wallet.
-     *
-     * UUID values make accidental filename collisions extremely unlikely
-     * and prevent newly generated wallets from overwriting existing wallets.
-     *
-     * @return a unique encrypted wallet filename
+     * I validate a filename against this build's network-specific wallet pattern before any
+     * file operation. This prevents directory traversal and opening the other network's
+     * namespace. Existing Testnet names retain their format; Mainnet uses its own prefix.
+     * @param name String supplied by the calling workflow as described above
      */
-    private static String createUniqueWalletFileName() {
-
-        // Generates a new universally unique identifier for the wallet.
-        String walletId =
-                UUID.randomUUID().toString();
-
-        // Constructs the encrypted wallet filename.
-        return WALLET_FILE_PREFIX
-                + walletId
-                + WALLET_FILE_EXTENSION;
+    public static void validateFileName(String name) {
+        if (name == null || !name.matches(BuildConfig.MAINNET
+                ? "legacybtc_wallet_mainnet_[a-zA-Z0-9-]+\\.enc" : "legacybtc_wallet_[a-zA-Z0-9-]+\\.enc"))
+            throw new IllegalArgumentException("Invalid wallet file name.");
     }
-
-
     /**
-     * Encrypts and saves a Bitcoin wallet inside the application's
-     * private internal storage.
-     *
-     * A new unique encrypted file is created every time this method
-     * is called, allowing multiple Bitcoin wallets to be stored.
-     *
-     * @param context provides access to application storage
-     * @param wallet  the bitcoinj Wallet object that will be encrypted
-     * @return the unique filename assigned to the saved wallet
-     * @throws Exception if serialization, encryption, or storage fails
+     * I compute the deterministic account identity and loop over saved files from this
+     * network. Matching identity reuses the existing wallet rather than overwriting it during
+     * restoration. A damaged entry does not stop the search through other entries. No match
+     * returns null.
+     * @param context Context supplied by the calling workflow as described above
+     * @param wallet Wallet supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
+     * @return the existing account filename, or null when no account matches
      */
-    public static String saveWallet(
-            Context context,
-            Wallet wallet
-    ) throws Exception {
-
-        // Ensures that the AES encryption key exists before
-        // wallet encryption begins.
-        createEncryptionKeyIfNeeded();
-
-
-        // Creates an in-memory stream that receives the serialized
-        // bitcoinj wallet without storing plaintext wallet data on disk.
-        ByteArrayOutputStream walletOutputStream =
-                new ByteArrayOutputStream();
-
-        // Serializes the bitcoinj Wallet object into memory.
-        wallet.saveToFileStream(walletOutputStream);
-
-        // Retrieves the serialized wallet bytes for encryption.
-        byte[] walletBytes =
-                walletOutputStream.toByteArray();
-
-
-        // Opens Android Keystore so the LegacyBTC AES key
-        // can be retrieved.
-        KeyStore keyStore =
-                KeyStore.getInstance(ANDROID_KEYSTORE);
-
-        keyStore.load(null);
-
-        // Retrieves the AES secret key previously created
-        // for LegacyBTC wallet encryption.
-        SecretKey secretKey =
-                ((KeyStore.SecretKeyEntry)
-                        keyStore.getEntry(
-                                KEY_ALIAS,
-                                null
-                        ))
-                        .getSecretKey();
-
-
-        // Creates the authenticated AES-GCM cipher.
-        Cipher cipher =
-                Cipher.getInstance(
-                        "AES/GCM/NoPadding"
-                );
-
-        // Initializes the cipher for encryption using
-        // the AES key stored in Android Keystore.
-        cipher.init(
-                Cipher.ENCRYPT_MODE,
-                secretKey
-        );
-
-        // Encrypts the serialized bitcoinj wallet.
-        byte[] encryptedWalletBytes =
-                cipher.doFinal(walletBytes);
-
-        // Retrieves the unique initialization vector created
-        // for this AES-GCM encryption operation.
-        byte[] initializationVector =
-                cipher.getIV();
-
-
-        // Creates a new unique encrypted filename for this wallet.
-        String walletFileName =
-                createUniqueWalletFileName();
-
-
-        /*
-         * Opens a private application file using the unique
-         * filename assigned to this Bitcoin wallet.
-         *
-         * Context.MODE_PRIVATE prevents other applications from
-         * directly accessing the file through ordinary storage access.
-         */
-        FileOutputStream fileOutputStream =
-                context.openFileOutput(
-                        walletFileName,
-                        Context.MODE_PRIVATE
-                );
-
-
-        // Stores the number of bytes used by the initialization vector.
-        fileOutputStream.write(
-                initializationVector.length
-        );
-
-        // Stores the initialization vector required for decryption.
-        fileOutputStream.write(
-                initializationVector
-        );
-
-        // Stores the encrypted bitcoinj wallet data.
-        fileOutputStream.write(
-                encryptedWalletBytes
-        );
-
-
-        // Closes the encrypted wallet file.
-        fileOutputStream.close();
-
-        // Closes the in-memory wallet serialization stream.
-        walletOutputStream.close();
-
-
-        // Returns the unique filename so the application can
-        // identify this saved wallet later.
-        return walletFileName;
-    }
-
-
-    /**
-     * Loads a specific encrypted Bitcoin wallet from application storage.
-     *
-     * @param context        provides access to application storage
-     * @param walletFileName identifies the encrypted wallet file to open
-     * @return the decrypted and reconstructed bitcoinj Wallet
-     * @throws Exception if reading, decryption, or reconstruction fails
-     */
-    public static Wallet loadWallet(
-            Context context,
-            String walletFileName
-    ) throws Exception {
-
-        // Opens the requested encrypted wallet file.
-        FileInputStream fileInputStream =
-                context.openFileInput(
-                        walletFileName
-                );
-
-        // Wraps the file stream so exact byte counts can be read safely.
-        DataInputStream dataInputStream =
-                new DataInputStream(
-                        fileInputStream
-                );
-
-
-        // Reads the first byte containing the AES-GCM
-        // initialization vector length.
-        int initializationVectorLength =
-                dataInputStream.readUnsignedByte();
-
-        // Rejects an invalid initialization vector length before
-        // attempting wallet decryption.
-        if (initializationVectorLength <= 0
-                || initializationVectorLength > 32) {
-
-            dataInputStream.close();
-
-            throw new IllegalStateException(
-                    "Invalid wallet initialization vector."
-            );
+    public static synchronized String findWallet(Context context, Wallet wallet) throws Exception {
+        String identity = WalletPolicy.walletIdentity(wallet);
+        for (String file : getSavedWalletFiles(context)) {
+            try { if (identity.equals(WalletPolicy.walletIdentity(loadWallet(context, file)))) return file; }
+            catch (Exception ignored) { /* A damaged entry does not prevent searching other wallets. */ }
         }
-
-
-        // Creates an array capable of storing the entire
-        // AES-GCM initialization vector.
-        byte[] initializationVector =
-                new byte[
-                        initializationVectorLength
-                        ];
-
-        // Reads the complete initialization vector from storage.
-        dataInputStream.readFully(
-                initializationVector
-        );
-
-
-        // Creates an in-memory stream for collecting the
-        // remaining encrypted wallet bytes.
-        ByteArrayOutputStream encryptedOutputStream =
-                new ByteArrayOutputStream();
-
-        // Temporary buffer used while reading encrypted wallet data.
-        byte[] buffer =
-                new byte[4096];
-
-        int bytesRead;
-
-        // Reads the remaining encrypted wallet data until
-        // the end of the file is reached.
-        while ((bytesRead =
-                dataInputStream.read(buffer)) != -1) {
-
-            encryptedOutputStream.write(
-                    buffer,
-                    0,
-                    bytesRead
-            );
-        }
-
-        // Retrieves the complete encrypted wallet data.
-        byte[] encryptedWalletBytes =
-                encryptedOutputStream.toByteArray();
-
-
-        // Closes the encrypted file streams.
-        dataInputStream.close();
-        encryptedOutputStream.close();
-
-
-        // Opens Android Keystore so the AES wallet encryption
-        // key can be retrieved.
-        KeyStore keyStore =
-                KeyStore.getInstance(
-                        ANDROID_KEYSTORE
-                );
-
-        keyStore.load(null);
-
-
-        // Retrieves the AES secret key used to encrypt
-        // LegacyBTC wallet files.
-        SecretKey secretKey =
-                ((KeyStore.SecretKeyEntry)
-                        keyStore.getEntry(
-                                KEY_ALIAS,
-                                null
-                        ))
-                        .getSecretKey();
-
-
-        // Creates an AES-GCM cipher for wallet decryption.
-        Cipher cipher =
-                Cipher.getInstance(
-                        "AES/GCM/NoPadding"
-                );
-
-
-        // Reconstructs the GCM configuration using the
-        // initialization vector stored with this wallet.
-        GCMParameterSpec parameterSpec =
-                new GCMParameterSpec(
-                        128,
-                        initializationVector
-                );
-
-
-        // Initializes the cipher for wallet decryption.
-        cipher.init(
-                Cipher.DECRYPT_MODE,
-                secretKey,
-                parameterSpec
-        );
-
-
-        // Decrypts the encrypted wallet bytes.
-        byte[] walletBytes =
-                cipher.doFinal(
-                        encryptedWalletBytes
-                );
-
-
-        // Creates an in-memory stream containing the original
-        // serialized bitcoinj wallet data.
-        ByteArrayInputStream walletInputStream =
-                new ByteArrayInputStream(
-                        walletBytes
-                );
-
-
-        // Reconstructs the bitcoinj Wallet object from
-        // the decrypted serialized wallet data.
-        Wallet wallet =
-                Wallet.loadFromFileStream(
-                        walletInputStream
-                );
-
-
-        // Closes the decrypted in-memory wallet stream.
-        walletInputStream.close();
-
-
-        // Returns the reconstructed Bitcoin wallet.
-        return wallet;
+        return null;
     }
-
-
     /**
-     * Returns the filenames of all encrypted Bitcoin wallets
-     * currently stored by LegacyBTC.
-     *
-     * @param context provides access to application storage
-     * @return an array containing encrypted LegacyBTC wallet filenames
+     * I reuse an existing matching account when found; otherwise I create a UUID filename
+     * within this network's namespace and encrypt the wallet. The returned String is the
+     * navigation/storage identifier, not private key data.
+     * @param context Context supplied by the calling workflow as described above
+     * @param wallet Wallet supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
+     * @return the existing or newly encrypted wallet filename
      */
-    public static String[] getSavedWalletFiles(
-            Context context
-    ) {
-
-        // Retrieves every private file currently stored by the application.
-        String[] applicationFiles =
-                context.fileList();
-
-        // Counts the number of files that match the LegacyBTC
-        // encrypted wallet filename format.
-        int walletFileCount = 0;
-
-        for (String fileName : applicationFiles) {
-
-            if (fileName.startsWith(
-                    WALLET_FILE_PREFIX
-            ) && fileName.endsWith(
-                    WALLET_FILE_EXTENSION
-            )) {
-
-                walletFileCount++;
-            }
-        }
-
-
-        // Creates an array sized exactly for the number
-        // of encrypted wallet files found.
-        String[] walletFiles =
-                new String[
-                        walletFileCount
-                        ];
-
-
-        // Stores each matching encrypted wallet filename
-        // inside the result array.
-        int walletIndex = 0;
-
-        for (String fileName : applicationFiles) {
-
-            if (fileName.startsWith(
-                    WALLET_FILE_PREFIX
-            ) && fileName.endsWith(
-                    WALLET_FILE_EXTENSION
-            )) {
-
-                walletFiles[
-                        walletIndex
-                        ] = fileName;
-
-                walletIndex++;
-            }
-        }
-
-
-        // Returns all encrypted wallet filenames found
-        // in LegacyBTC's private storage.
-        return walletFiles;
+    public static synchronized String saveWallet(Context context, Wallet wallet) throws Exception {
+        String existing = findWallet(context, wallet);
+        if (existing != null) return existing;
+        String file = PREFIX + UUID.randomUUID() + EXTENSION;
+        updateWallet(context, file, wallet);
+        return file;
     }
-
     /**
-     * Deletes a specific encrypted Bitcoin wallet file from
-     * LegacyBTC's private application storage.
-     *
-     * @param context provides access to application storage
-     * @param walletFileName identifies the encrypted wallet file to delete
-     * @return true if the wallet file was successfully deleted
+     * I validate network and filename, serialize Wallet.saveToFileStream into memory, and pass
+     * those bytes to encrypted atomic storage. The plaintext byte array is cleared in a
+     * finally block on success or failure. Provider or filesystem exceptions prevent the
+     * caller from claiming persistence succeeded.
+     * @param context Context supplied by the calling workflow as described above
+     * @param file String supplied by the calling workflow as described above
+     * @param wallet Wallet supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
      */
-    public static boolean deleteWallet(
-            Context context,
-            String walletFileName
-    ) {
-
-        // Deletes only the selected encrypted wallet file.
-        return context.deleteFile(walletFileName);
+    public static synchronized void updateWallet(Context context, String file, Wallet wallet) throws Exception {
+        WalletPolicy.requireNetwork(wallet);
+        validateFileName(file);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        wallet.saveToFileStream(output);
+        byte[] plain = output.toByteArray();
+        try { writeEncrypted(context, file, plain); }
+        finally { Arrays.fill(plain, (byte) 0); }
     }
-
     /**
-     * Checks whether a wallet with the same current receiving
-     * address is already stored by LegacyBTC.
-     *
-     * This prevents the same wallet from being saved repeatedly
-     * during the current development stage.
-     *
-     * @param context provides access to application storage
-     * @param wallet  the wallet being checked
-     * @return true if a matching wallet is already saved
+     * I pass serialized bytes and the Android Keystore key to WalletCipher.encrypt.
+     * AtomicFile.startWrite writes a replacement; finishWrite publishes it only after success.
+     * If writing fails, failWrite restores the previous file and the exception reaches the
+     * service.
+     * @param context Context supplied by the calling workflow as described above
+     * @param file String supplied by the calling workflow as described above
+     * @param plain byte[] supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
      */
-    public static boolean walletAlreadySaved(
-            Context context,
-            Wallet wallet
-    ) {
-
-        // Uses the wallet's current receiving address as the
-        // identifier for duplicate detection at this stage.
-        String walletAddress =
-                wallet.currentReceiveAddress().toString();
-
-        // Retrieves all encrypted wallet files currently stored.
-        String[] walletFiles =
-                getSavedWalletFiles(context);
-
-        // Checks each saved wallet individually.
-        for (String walletFileName : walletFiles) {
-
-            try {
-
-                // Decrypts and reconstructs the saved wallet.
-                Wallet savedWallet =
-                        loadWallet(
-                                context,
-                                walletFileName
-                        );
-
-                // Retrieves the saved wallet's current receiving address.
-                String savedWalletAddress =
-                        savedWallet.currentReceiveAddress().toString();
-
-                // A matching address means the wallet is already stored.
-                if (walletAddress.equals(savedWalletAddress)) {
-                    return true;
-                }
-
-            } catch (Exception exception) {
-
-                // A wallet file that cannot be loaded is skipped so
-                // other stored wallets can still be checked.
-            }
-        }
-
-        // No matching wallet was found.
-        return false;
+    static synchronized void writeEncrypted(Context context, String file, byte[] plain) throws Exception {
+        byte[] data = WalletCipher.encrypt(plain, getKey(true));
+        AtomicFile atomic = new AtomicFile(new File(context.getFilesDir(), file));
+        FileOutputStream stream = null;
+        try { stream = atomic.startWrite(); stream.write(data); atomic.finishWrite(stream); }
+        catch (Exception error) { if (stream != null) atomic.failWrite(stream); throw error; }
     }
-
+    /**
+     * I reject an oversized file, read the AtomicFile envelope, and ask WalletCipher.decrypt
+     * to authenticate and decrypt it with the existing device key. The returned byte array is
+     * private serialized data that the caller must clear after parsing. Corruption and
+     * missing-key errors propagate.
+     * @param context Context supplied by the calling workflow as described above
+     * @param file String supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
+     * @return authenticated plaintext bytes that the caller must clear after use
+     */
+    static synchronized byte[] readEncrypted(Context context, String file) throws Exception {
+        AtomicFile atomic = new AtomicFile(new File(context.getFilesDir(), file));
+        if (atomic.getBaseFile().length() > 32 * 1024 * 1024)
+            throw new IllegalStateException("Wallet file exceeds the supported size.");
+        return WalletCipher.decrypt(atomic.readFully(), getKey(false));
+    }
+    /**
+     * I validate the network-specific filename, decrypt the file, and parse its bytes with
+     * bitcoinj Wallet.loadFromFileStream. I check the internal wallet network before returning
+     * it and clear the plaintext array in finally. Corrupt files and absent Keystore keys
+     * raise errors instead of silently creating a replacement wallet.
+     * @param context Context supplied by the calling workflow as described above
+     * @param file String supplied by the calling workflow as described above
+     * @throws Exception if the validation, library, or storage operation described above fails
+     * @return the network-checked parsed Wallet when loading, or no value for the screen-loading callback
+     */
+    public static synchronized Wallet loadWallet(Context context, String file) throws Exception {
+        validateFileName(file);
+        byte[] plain = readEncrypted(context, file);
+        try {
+            Wallet wallet = Wallet.loadFromFileStream(new ByteArrayInputStream(plain));
+            WalletPolicy.requireNetwork(wallet);
+            return wallet;
+        } finally { Arrays.fill(plain, (byte) 0); }
+    }
+    /**
+     * I list only filenames matching this build's wallet namespace and sort the resulting
+     * String array. A missing directory listing returns an empty array. Mainnet files are not
+     * converted or exposed in Testnet, and legacy Testnet files remain untouched.
+     * @param context Context supplied by the calling workflow as described above
+     * @return a sorted array of filenames belonging only to this build network
+     */
+    public static String[] getSavedWalletFiles(Context context) {
+        String[] files = context.getFilesDir().list((dir, name) -> name.matches(BuildConfig.MAINNET
+                ? "legacybtc_wallet_mainnet_[a-zA-Z0-9-]+\\.enc" : "legacybtc_wallet_[a-zA-Z0-9-]+\\.enc"));
+        if (files == null) return new String[0];
+        Arrays.sort(files);
+        return files;
+    }
+    /**
+     * I receive a validated filename from the authenticated deletion flow. The service closes
+     * and saves a selected wallet before the storage helper removes its local AtomicFile. The
+     * boolean result reports file removal. This does not remove an inheritance UTXO from the
+     * blockchain; the warning requires a separate backup.
+     * @param context Context supplied by the calling workflow as described above
+     * @param file String supplied by the calling workflow as described above
+     * @return true if the selected local wallet file no longer exists
+     */
+    public static synchronized boolean deleteWallet(Context context, String file) {
+        validateFileName(file);
+        AtomicFile atomic = new AtomicFile(new File(context.getFilesDir(), file));
+        atomic.delete();
+        return !atomic.getBaseFile().exists();
+    }
+    public static boolean walletAlreadySaved(Context context, Wallet wallet) {
+        try { return findWallet(context, wallet) != null; } catch (Exception error) { return false; }
+    }
 }

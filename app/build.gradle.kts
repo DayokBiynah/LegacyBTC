@@ -21,11 +21,27 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "MAINNET", "false")
+        }
         release {
+            buildConfigField("boolean", "MAINNET", "true")
             optimization {
                 enable = false
             }
         }
+        create("mainnetDebug") {
+            initWith(getByName("debug"))
+            buildConfigField("boolean", "MAINNET", "true")
+            matchingFallbacks += listOf("debug")
+        }
+    }
+    buildFeatures { buildConfig = true }
+    // I can run the same disposable instrumentation fixtures against either network build.
+    testBuildType = providers.gradleProperty("walletTestBuildType").getOrElse("debug")
+    sourceSets {
+        getByName("release").res.srcDir("src/mainnet/res")
+        getByName("mainnetDebug").res.srcDir("src/mainnet/res")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -42,7 +58,9 @@ dependencies {
     // Adds the bitcoinj library to LegacyBTC.
     // bitcoinj provides the Bitcoin wallet, key, address,
     // transaction, and network functionality used by the application.
-    implementation("org.bitcoinj:bitcoinj-core:0.17.1")
+    implementation(libs.bitcoinj)
+    // Encodes public receiving addresses as QR codes; it never receives private keys.
+    implementation(libs.zxing)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)

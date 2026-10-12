@@ -1,0 +1,78 @@
+[
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\Beneficiary.java",
+        "Hash":  "9CC11B09CA2DEFA5308B7EC9AE4B524537F7AC536CF09D3F367052C6B0BEE557"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\BitcoinNetworkManager.java",
+        "Hash":  "9B5C8722BFD446BE91FD59FC636A7DC42FA830C4EAA27254EF4ABED9283950DD"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\BitcoinPayments.java",
+        "Hash":  "466FD368D8D30E0B8EE63D27EFD0986AE760993F521D2CAF936ED24E52FA73E1"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\BitcoinService.java",
+        "Hash":  "0FACAA2580169A45A2EB62B3776E6F8E5787D8F0C2F19A31B147791287C5499F"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\BitcoinTransaction.java",
+        "Hash":  "8E59D4D49159E26A43CECBBF4ED7D2AFD3361CFB6D87F610EBD95F6E3A789161"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\BitcoinWallet.java",
+        "Hash":  "6134DCD0847BA6723E3D0909B11CFDF29996E2A495047EEC9B773D50EF74DA63"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\Hex.java",
+        "Hash":  "90F80246744932F466A590814DC4BDFF1309D0ED1C07232BACC4ACF2A7832A03"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\InheritancePlan.java",
+        "Hash":  "23D123001A98D6A42549C7439E44F58D177B109091DC988B0EE4DB37B044E1F2"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\InheritanceRepository.java",
+        "Hash":  "EB21C121484B3CD0C3E852E098DCC52AAC685E9AAF62A14EAE65AE7D8D749A85"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\InheritanceScript.java",
+        "Hash":  "4A869CB619977C6E7729B6A35EDB06ECD1B1093FA04F234D94033943AA4FE6B1"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\InheritanceService.java",
+        "Hash":  "22EED9ECF71D452565EF0F3ABC8697EFB967249A43051966121329D4E74A9B53"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\LegacyBtcApplication.java",
+        "Hash":  "9A6E4A91FBD33C23BCEDE9FAC1D23290A27B0F70618413AF064D4491FA503693"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\NetworkSettings.java",
+        "Hash":  "AB29B9D7BCA381BFA704479BBD2462CBB5D167F779A821B3F5CE766FCDFD4E89"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\Owner.java",
+        "Hash":  "23A2451FD5DCF0DDAAA14E3B541D1572B2EB0A118EF9F1528644E134F049821F"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\User.java",
+        "Hash":  "778C313D082C47B450BA54A68BD0E15F86ECF17BA5AFC0242DC556CCFA42FAE1"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\WalletCipher.java",
+        "Hash":  "336BB78F8C3EF15C8D7DB8F4D4C0EA357159968EDF95372C1E734A57740AF41D"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\WalletPolicy.java",
+        "Hash":  "0C9D9D2358F4D292B0A4DA356E0B5F905283C482CE657311E263C3F80C093272"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\WalletReplay.java",
+        "Hash":  "E4C4A2F3A0B38593343D6FBC905406FEB58FBE17DDEE9477B6A2D3C37A51A01C"
+    },
+    {
+        "Path":  "C:\\AndroidStudioProjects\\LegacyBTC\\app\\src\\main\\java\\com\\example\\legacybtc\\WalletStorageManager.java",
+        "Hash":  "63650821E1305C514A073B6C92D147117178A005C2FBAEC7F94EEA7D59EC02AD"
+    }
+]

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="1" failures="0" errors="0" skipped="0" time="6.976" timestamp="2026-10-12T02:47:01" hostname="localhost">
+  <testsuite name="com.example.legacybtc.MainnetNetworkTest" tests="1" failures="0" errors="0" skipped="0" time="5.558" timestamp="2026-10-12T02:47:01" hostname="localhost">
+    <properties>
+      <property name="device" value="Pixel_4a(AVD) - 17" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="discoversMainnetPeersWithoutBroadcasting" classname="com.example.legacybtc.MainnetNetworkTest" time="5.558" />
+  </testsuite>
+</testsuites>

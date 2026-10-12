@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- I override only network-specific text; the seven XML screens keep their shared design. -->
+<resources>
+    <string name="testnet_only">Bitcoin Mainnet · Real BTC</string>
+    <string name="testnet_safety">Mainnet uses real Bitcoin. Review every destination, amount and fee before confirming.</string>
+    <string name="retry_connection">Connect / Retry Mainnet</string>
+    <string name="receive_description">Use this QR code or address to receive Bitcoin on Mainnet. Check the address and network before transferring.</string>
+    <string name="qr_description">Bitcoin Mainnet payment address QR code</string>
+    <string name="recipient_hint">Recipient Mainnet address</string>
+    <string name="beneficiary_address">Beneficiary Bitcoin Mainnet address</string>
+    <string name="rescan_history">Rescan Mainnet History</string>
+    <string name="rescan_warning">Replay historical Mainnet blocks to verify watched inheritance outputs. Confirmed history and balances will be rebuilt. Saved pending transactions and wallet keys are retained. Claims remain disabled during synchronization.</string>
+    <string name="relayed_id">Relayed to Mainnet peers. Awaiting confirmation.\n%1$s</string>
+    <string name="peer_description">Bitcoin Mainnet. Leave the host empty for DNS discovery. A custom peer must support bloom filters. Default port: 8333.</string>
+    <string name="peer_host">Mainnet peer host (optional)</string>
+    <string name="peer_port">Mainnet peer port</string>
+    <string name="network_heading">Mainnet connection</string>
+</resources>

@@ -7,8 +7,12 @@ appcompat = "1.7.1"
 material = "1.14.0"
 activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
+bitcoinj = "0.17.1"
+zxing = "3.5.3"
 
 [libraries]
+bitcoinj = { group = "org.bitcoinj", name = "bitcoinj-core", version.ref = "bitcoinj" }
+zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

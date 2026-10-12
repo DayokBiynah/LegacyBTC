@@ -1,71 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!-- Main vertical layout for the Restore Wallet screen. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="24dp">
-
-    <!-- Identifies the purpose of the wallet recovery screen. -->
-    <TextView
-        android:id="@+id/restoreWalletTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Restore Bitcoin Wallet"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Explains how the recovery phrase is used. -->
-    <TextView
-        android:id="@+id/restoreWalletDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Enter the 12-word recovery phrase associated with your Bitcoin wallet."
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Accepts the 12-word mnemonic recovery phrase. -->
-    <EditText
-        android:id="@+id/recoveryPhraseInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter 12-word recovery phrase"
-        android:inputType="textMultiLine"
-        android:minLines="3"
-        android:gravity="top"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Starts the wallet reconstruction process. -->
-    <Button
-        android:id="@+id/restoreWalletButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Restore Wallet"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Displays the receiving address generated from
-         the restored deterministic Bitcoin wallet. -->
-    <TextView
-        android:id="@+id/restoredAddressText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Restored wallet address will appear here"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Returns the user to the previous screen. -->
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back" />
-
-</LinearLayout>
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/restore_title" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/restore_description" />
+        <LinearLayout android:id="@+id/restorePath" style="@style/UiCard">
+            <TextView style="@style/UiLabel" android:text="@string/phrase_hint" android:labelFor="@id/recoveryPhraseInput" />
+            <EditText android:id="@+id/recoveryPhraseInput" style="@style/UiInput" android:inputType="textMultiLine|textNoSuggestions" android:importantForAutofill="no" android:saveEnabled="false" android:minLines="3" android:gravity="top|start" />
+            <TextView style="@style/UiLabel" android:text="@string/passphrase_hint" android:labelFor="@id/passphraseInput" />
+            <EditText android:id="@+id/passphraseInput" style="@style/UiInput" android:inputType="textPassword" android:importantForAutofill="no" android:saveEnabled="false" />
+            <Button android:id="@+id/restoreWalletButton" style="@style/UiButtonPrimary" android:text="@string/restore_wallet" />
+        </LinearLayout>
+        <TextView android:id="@+id/restoredAddressText" style="@style/UiFeedback" android:text="@string/empty" />
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/continueButton" style="@style/UiButtonPrimary" android:text="@string/continue_label" android:visibility="gone" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

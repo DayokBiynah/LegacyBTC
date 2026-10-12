@@ -1,64 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!-- Main vertical layout for the Open Existing Wallet screen. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:paddingTop="24dp"
-    android:paddingBottom="40dp">
-
-    <!-- Identifies the purpose of the screen. -->
-    <TextView
-        android:id="@+id/openWalletTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open Existing Wallet"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Explains that the screen displays Bitcoin wallets
-         already stored securely on the device. -->
-    <TextView
-        android:id="@+id/openWalletDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Select a Bitcoin wallet that has already been securely saved on this device."
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Provides a scrollable area for saved wallets while
-         keeping the Back button visible at the bottom. -->
-    <ScrollView
-        android:id="@+id/savedWalletsScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
-
-        <!-- Contains the dynamically generated wallet rows. -->
-        <LinearLayout
-            android:id="@+id/savedWalletsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="12dp" />
-
-    </ScrollView>
-
-    <!-- Returns the user to the previous screen. -->
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp" />
-
-</LinearLayout>
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/savedWalletsScrollView" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/openWalletTitle" style="@style/UiTitle" android:text="@string/saved_wallets_heading" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/openWalletDescription" style="@style/UiSupporting" android:text="@string/open_description" />
+        <LinearLayout android:id="@+id/savedWalletsContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/settings" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/security_heading" />
+            <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/security_description" />
+            <TextView style="@style/UiLabel" android:text="@string/device_security_label" />
+            <TextView style="@style/UiCaption" android:text="@string/device_security_helper" />
+            <Button android:id="@+id/revealRecoveryButton" style="@style/UiButtonSecondary" android:text="@string/reveal_recovery" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/backup_heading" />
+            <TextView style="@style/UiSupporting" android:text="@string/settings_backup_helper" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/network_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/peer_description" />
+            <TextView style="@style/UiLabel" android:text="@string/peer_host" android:labelFor="@id/peerHostInput" />
+            <EditText android:id="@+id/peerHostInput" style="@style/UiInput" android:inputType="textUri" android:importantForAutofill="no" />
+            <TextView style="@style/UiLabel" android:text="@string/peer_port" android:labelFor="@id/peerPortInput" />
+            <EditText android:id="@+id/peerPortInput" style="@style/UiInput" android:inputType="number" android:importantForAutofill="no" />
+            <Button android:id="@+id/saveNetworkButton" style="@style/UiButtonSecondary" android:text="@string/save_network" />
+        </LinearLayout>
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

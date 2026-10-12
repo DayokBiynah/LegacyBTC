@@ -8,14 +8,6 @@ import android.os.Bundle;
 // to the Create Wallet and Restore Wallet buttons defined in the XML layout.
 import android.widget.Button;
 
-// Imports Toast to display a short on-screen confirmation after
-// the user selects the Create Wallet or Restore Wallet option.
-import android.widget.Toast;
-
-// Imports AppCompatActivity, which provides the Android Activity
-// functionality required for MainActivity to operate as an application screen.
-import androidx.appcompat.app.AppCompatActivity;
-
 // Imports Intent so MainActivity can open another Activity
 // when the user selects an option from the entry screen.
 import android.content.Intent;
@@ -23,13 +15,14 @@ import android.content.Intent;
 
 
 /**
- * MainActivity is the entry screen of the LegacyBTC application.
- *
- * The Activity displays the options for creating a new Bitcoin wallet
- * or restoring an existing Bitcoin wallet and handles user interaction
- * with those controls.
+ * I provide the public welcome navigation to Create/Restore and Open Existing Wallet. These
+ * buttons create Android Intents to the appropriate Activities and do not load private wallet
+ * information. The common WalletActivity handles screenshot protection and subsequent secured
+ * screens.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends WalletActivity {
+    // The public welcome screen can be shown without unlocking wallet data.
+    @Override protected boolean requiresUnlock() { return false; }
 
     // Stores a reference to the Create Wallet button so its click
     // event can be handled from Java.
@@ -45,14 +38,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Executes when MainActivity is created.
-     *
-     * This method loads the activity_main.xml interface, connects the
-     * XML buttons to their Java variables, and defines the action that
-     * occurs when either button is selected.
-     *
-     * @param savedInstanceState contains previously saved Activity state
-     *                           when Android recreates the Activity
+     * Android calls this lifecycle method when creating or recreating the component. I
+     * initialize the parent behavior, connect Java listeners to the XML controls or register
+     * application callbacks, and restore only the workflow state explicitly handled below.
+     * Button callbacks capture input on the UI thread and delegate expensive wallet work to
+     * the service. Errors are displayed instead of silently continuing.
+     * @param savedInstanceState Bundle supplied by the calling workflow as described above
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {

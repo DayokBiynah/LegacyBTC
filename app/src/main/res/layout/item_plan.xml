@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" style="@style/UiCard">
+    <TextView android:id="@+id/planNameText" style="@style/UiSection" android:text="@string/empty" />
+    <TextView android:id="@+id/planAmountText" style="@style/UiSupporting" android:text="@string/empty" />
+    <Button android:id="@+id/selectPlanButton" style="@style/UiButtonSecondary" android:text="@string/select_plan" />
+</LinearLayout>

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/app_name" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/walletIdentityText" style="@style/UiCaption" android:text="@string/wallet_identity_placeholder" />
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiCaption" android:text="@string/available_balance_label" />
+            <TextView android:id="@+id/balanceText" style="@style/UiTitle" android:text="@string/balance_placeholder" android:textSize="34sp" />
+            <TextView style="@style/UiCaption" android:text="@string/balance_helper" />
+            <TextView android:id="@+id/confirmedBalanceText" style="@style/UiCaption" />
+            <TextView android:id="@+id/pendingBalanceText" style="@style/UiCaption" />
+            <Button android:id="@+id/sendButton" style="@style/UiButtonPrimary" android:text="@string/send" />
+            <Button android:id="@+id/receiveButton" style="@style/UiButtonSecondary" android:text="@string/receive" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/receiving_address_label" />
+            <TextView android:id="@+id/walletAddressText" style="@style/UiAddress" android:text="@string/address_placeholder" />
+            <Button android:id="@+id/copyAddressButton" style="@style/UiButtonQuiet" android:text="@string/copy_address" />
+        </LinearLayout>
+        <Button android:id="@+id/historyButton" style="@style/UiButtonSecondary" android:text="@string/transaction_history" />
+        <Button android:id="@+id/inheritanceButton" style="@style/UiButtonSecondary" android:text="@string/inheritance" />
+        <Button android:id="@+id/settingsButton" style="@style/UiButtonSecondary" android:text="@string/settings" />
+        <LinearLayout style="@style/UiCard">
+            <TextView android:id="@+id/recentTitle" style="@style/UiSection" android:text="@string/recent_transactions" />
+            <TextView android:id="@+id/recentTransactionsText" style="@style/UiSupporting" android:text="@string/no_transactions" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/inheritance_plan_heading" />
+            <TextView android:id="@+id/inheritanceStatusText" style="@style/UiSupporting" android:text="@string/no_plan" />
+        </LinearLayout>
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/connectButton" style="@style/UiButtonQuiet" android:text="@string/retry_connection" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/close_wallet" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/beneficiary_recovery" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/recovery_description" />
+        <LinearLayout style="@style/UiCard">
+            <TextView android:id="@+id/recoveryStateText" style="@style/UiSection" android:text="@string/recovery_locked_heading" />
+            <TextView android:id="@+id/recoveryConditionText" style="@style/UiCaption" android:text="@string/recovery_locked_helper" />
+            <TextView android:id="@+id/planStatusText" style="@style/UiSupporting" android:text="@string/no_plan_import" />
+            <Button android:id="@+id/checkStatusButton" style="@style/UiButtonSecondary" android:text="@string/check_status" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/recoveryDetailsSection" style="@style/UiCard" android:visibility="gone">
+            <TextView style="@style/UiSection" android:text="@string/inheritance_details_recovery" />
+            <TextView android:id="@+id/recoveryAmountText" style="@style/UiTitle" android:text="@string/empty" />
+            <TextView android:id="@+id/recoveryPeriodText" style="@style/UiCaption" android:text="@string/empty" />
+            <TextView android:id="@+id/recoveryDeadlineText" style="@style/UiSupporting" android:text="@string/empty" />
+            <TextView android:id="@+id/recoveryEligibilityText" style="@style/UiSupporting" android:text="@string/empty" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/recovery_actions_heading" />
+            <TextView style="@style/UiLabel" android:text="@string/fee_hint" android:labelFor="@id/feeInput" />
+            <EditText android:id="@+id/feeInput" style="@style/UiInput" android:inputType="number" android:importantForAutofill="no" android:text="@string/default_fee" />
+            <Button android:id="@+id/claimButton" style="@style/UiButtonPrimary" android:text="@string/claim_recover" android:enabled="false" />
+            <Button android:id="@+id/viewDetailsButton" style="@style/UiButtonSecondary" android:text="@string/view_details" />
+            <Button android:id="@+id/cancelFundedButton" style="@style/UiButtonDestructive" android:text="@string/cancel_funded_plan" android:enabled="false" />
+            <TextView android:id="@+id/confirmationText" style="@style/UiFeedback" android:text="@string/empty" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/recoveryBeneficiarySection" style="@style/UiCard" android:visibility="gone">
+            <TextView style="@style/UiSection" android:text="@string/beneficiary_heading" />
+            <TextView android:id="@+id/recoveryBeneficiaryText" style="@style/UiSection" android:text="@string/empty" />
+            <TextView style="@style/UiLabel" android:text="@string/receiving_address_label" />
+            <TextView android:id="@+id/recoveryAddressText" style="@style/UiAddress" android:text="@string/empty" />
+            <TextView style="@style/UiLabel" android:text="@string/public_key_label" />
+            <TextView android:id="@+id/recoveryPublicKeyText" style="@style/UiAddress" android:text="@string/empty" />
+            <TextView style="@style/UiLabel" android:text="@string/transaction_id_label" />
+            <TextView android:id="@+id/recoveryFundingText" style="@style/UiAddress" android:text="@string/empty" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/recovery_package_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/package_helper" />
+            <Button android:id="@+id/importPlanButton" style="@style/UiButtonSecondary" android:text="@string/import_plan" />
+            <Button android:id="@+id/exportPlanButton" style="@style/UiButtonSecondary" android:text="@string/export_plan" />
+            <Button android:id="@+id/rescanButton" style="@style/UiButtonQuiet" android:text="@string/rescan_history" />
+        </LinearLayout>
+        <TextView android:id="@+id/plansTitle" style="@style/UiSection" android:text="@string/saved_plans" />
+        <LinearLayout android:id="@+id/plansContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

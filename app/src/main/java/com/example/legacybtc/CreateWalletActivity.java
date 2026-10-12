@@ -1,215 +1,128 @@
 package com.example.legacybtc;
 
-// Imports Bundle so the Activity can receive saved state information
-// when Android creates or recreates this screen.
 import android.os.Bundle;
-
-// Imports Button so this Activity can control the buttons
-// defined in activity_create_wallet.xml.
+import android.view.View;
 import android.widget.Button;
-
-// Imports TextView so the Activity can display the generated
-// Bitcoin address and wallet recovery phrase.
+import android.widget.CheckBox;
 import android.widget.TextView;
-
-// Imports Toast so the Activity can display short status
-// and error messages to the user.
-import android.widget.Toast;
-
-// Provides the Android Activity functionality used by this screen.
-import androidx.appcompat.app.AppCompatActivity;
-
-// Imports BitcoinNetwork so the wallet can be configured
-// to operate on a specific Bitcoin network.
-import org.bitcoinj.base.BitcoinNetwork;
-
-// Imports ScriptType so the wallet can specify the type
-// of Bitcoin receiving addresses it generates.
-import org.bitcoinj.base.ScriptType;
-
-// Imports the bitcoinj Wallet class, which represents
-// a Bitcoin wallet containing keys, addresses, and transactions.
-import org.bitcoinj.wallet.Wallet;
-
+import android.widget.EditText;
 
 /**
- * CreateWalletActivity controls the screen used to create
- * and load a LegacyBTC Bitcoin wallet.
- *
- * This Activity allows the user to generate a Bitcoin Testnet wallet,
- * view its receiving address and recovery phrase, securely save the
- * wallet, and load a previously saved wallet.
+ * I implement the combined Create/Restore screen using Java and XML. Buttons capture recovery
+ * Strings or request a fresh wallet on the service worker. New wallets display numbered
+ * recovery words and require a backup checkbox before Continue. Restored wallets clear inputs
+ * instead of redisplaying the phrase. Saved instance state contains a filename and public
+ * workflow flags, never mnemonic words.
  */
-public class CreateWalletActivity extends AppCompatActivity {
-
-    // Stores a reference to the Generate Wallet button so the
-    // Activity can respond when the user selects it.
-    private Button generateWalletButton;
-
-
-    // Stores a reference to the Back button so the Activity can
-    // return the user to the previous screen.
-    private Button backButton;
-
-    // Stores a reference to the TextView used to display
-    // the generated wallet recovery phrase.
-    private TextView recoveryPhraseText;
-
-    // Stores a reference to the TextView used to display
-    // the Bitcoin receiving address associated with the wallet.
-    private TextView walletAddressText;
-
-    // Stores the Bitcoin wallet created or loaded by bitcoinj.
-    // The Wallet object manages the deterministic key hierarchy,
-    // receiving addresses, balances, and Bitcoin transactions.
-    private Wallet bitcoinWallet;
-
-
+public class CreateWalletActivity extends WalletActivity {
+    private String walletFile;
+    private boolean generating;
+    private boolean restored;
     /**
-     * Executes when CreateWalletActivity is created.
-     *
-     * This method loads the XML layout, connects the XML controls
-     * to Java variables, and defines the actions performed when
-     * the user selects the available buttons.
-     *
-     * @param savedInstanceState contains saved Activity state
-     *                           if Android is recreating the screen
+     * Android calls this lifecycle method when creating or recreating the component. I
+     * initialize the parent behavior, connect Java listeners to the XML controls or register
+     * application callbacks, and restore only the workflow state explicitly handled below.
+     * Button callbacks capture input on the UI thread and delegate expensive wallet work to
+     * the service. Errors are displayed instead of silently continuing.
+     * @param state Bundle supplied by the calling workflow as described above
      */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        // Initializes the Activity through the Android Activity lifecycle.
-        super.onCreate(savedInstanceState);
-
-        // Loads activity_create_wallet.xml as the visible interface
-        // controlled by CreateWalletActivity.
+    @Override protected void onCreate(Bundle state) {
+        super.onCreate(state);
         setContentView(R.layout.activity_create_wallet);
-
-
-        // Finds the Generate Wallet button in the XML layout and
-        // connects it to the Java variable.
-        generateWalletButton =
-                findViewById(R.id.generateWalletButton);
-
-
-        // Finds the Back button in the XML layout and connects
-        // it to the Java variable.
-        backButton =
-                findViewById(R.id.backButton);
-
-        // Connects the recovery phrase TextView from the XML layout
-        // to its Java variable.
-        recoveryPhraseText =
-                findViewById(R.id.recoveryPhraseText);
-
-        // Connects the wallet address TextView from the XML layout
-        // to its Java variable.
-        walletAddressText =
-                findViewById(R.id.walletAddressText);
-
-
-        // Executes when the user selects Generate Wallet.
-        generateWalletButton.setOnClickListener(view -> {
-
-            /*
-             * Creates a new deterministic Bitcoin wallet.
-             *
-             * BitcoinNetwork.TESTNET configures the wallet for Bitcoin Testnet,
-             * which uses test bitcoins instead of real BTC.
-             *
-             * ScriptType.P2WPKH creates native SegWit receiving addresses.
-             * These addresses normally begin with "tb1" on Bitcoin Testnet.
-             *
-             * createDeterministic() generates the wallet from a randomly
-             * generated deterministic seed. That seed can recreate the
-             * wallet and its associated Bitcoin keys.
-             */
-            bitcoinWallet = Wallet.createDeterministic(
-                    BitcoinNetwork.TESTNET,
-                    ScriptType.P2WPKH
-            );
-
-
-            // Obtains the wallet's current Bitcoin receiving address.
-            // Bitcoin can be sent to this address after the wallet
-            // is connected to the Bitcoin network.
-            String receiveAddress =
-                    bitcoinWallet.currentReceiveAddress().toString();
-
-            // Places the generated Bitcoin Testnet receiving address
-            // inside the wallet address TextView.
-            walletAddressText.setText(receiveAddress);
-
-            // Makes the wallet address visible after the Bitcoin
-            // wallet has been successfully generated.
-            walletAddressText.setVisibility(TextView.VISIBLE);
-
-
-            // Retrieves the mnemonic recovery words associated with the
-            // deterministic key chain of the newly generated Bitcoin wallet.
-            java.util.List<String> mnemonicWords =
-                    bitcoinWallet.getActiveKeyChain().getMnemonicCode();
-
-            // Checks that the wallet contains a mnemonic recovery phrase
-            // before attempting to display it.
-            if (mnemonicWords != null) {
-
-                // Combines the individual mnemonic words into a single
-                // space-separated recovery phrase for display.
-                String recoveryPhrase =
-                        String.join(" ", mnemonicWords);
-
-                // Places the generated recovery phrase inside the TextView.
-                recoveryPhraseText.setText(recoveryPhrase);
-
-                // Makes the recovery phrase visible after wallet generation.
-                recoveryPhraseText.setVisibility(TextView.VISIBLE);
-            }
-
-
-            // Attempts to securely save the newly generated wallet.
-            try {
-
-                // Encrypts and saves the newly generated Bitcoin wallet
-                // inside the application's private Android storage.
-                WalletStorageManager.saveWallet(
-                        CreateWalletActivity.this,
-                        bitcoinWallet
-                );
-
-            } catch (Exception exception) {
-
-                // Displays an error message if the wallet cannot be
-                // encrypted or saved successfully.
-                Toast.makeText(
-                        CreateWalletActivity.this,
-                        "Wallet could not be saved.",
-                        Toast.LENGTH_LONG
-                ).show();
-
-                // Stops the remaining wallet-created confirmation code
-                // because the wallet was not successfully saved.
-                return;
-            }
-
-
-            // Displays a confirmation that the wallet was successfully
-            // generated and securely saved.
-            Toast.makeText(
-                    CreateWalletActivity.this,
-                    "Wallet created and saved.",
-                    Toast.LENGTH_LONG
-            ).show();
+        walletFile = state == null ? null : state.getString("wallet_file");
+        restored = state != null && state.getBoolean("restored");
+        Button generate = findViewById(R.id.generateWalletButton);
+        generate.setOnClickListener(view -> {
+            if (generating || walletFile != null) return;
+            generating = true;
+            work(() -> {
+                try { return service.createWallet(); } finally { generating = false; }
+            }, file -> { walletFile = file; showWallet(); });
         });
-
-
-
-        // Executes when the user selects Back.
-        backButton.setOnClickListener(view -> {
-
-            // Closes CreateWalletActivity and returns the user
-            // to the Activity that opened it, which is MainActivity.
-            finish();
+        findViewById(R.id.restoreWalletButton).setOnClickListener(view -> {
+            if (generating || walletFile != null) return;
+            String phrase = ((EditText) findViewById(R.id.recoveryPhraseInput)).getText().toString();
+            String passphrase = ((EditText) findViewById(R.id.passphraseInput)).getText().toString();
+            generating = true;
+            work(() -> {
+                try { return service.restoreWallet(phrase, passphrase); } finally { generating = false; }
+            }, file -> {
+                walletFile = file; restored = true;
+                ((EditText) findViewById(R.id.recoveryPhraseInput)).setText("");
+                ((EditText) findViewById(R.id.passphraseInput)).setText("");
+                showWallet();
+            });
         });
+        findViewById(R.id.continueButton).setOnClickListener(view -> {
+            if (walletFile == null) { showError("Create or restore a wallet first."); return; }
+            if (!restored && !((CheckBox) findViewById(R.id.backupConfirmed)).isChecked()) {
+                showError("Write down your recovery words and confirm the backup before continuing."); return;
+            }
+            dashboard(walletFile);
+        });
+        findViewById(R.id.backButton).setOnClickListener(view -> finish());
+        if (walletFile != null) showWallet();
+    }
+    /**
+     * I reload the encrypted wallet before displaying its public address. For a newly created
+     * wallet I number the mnemonic words and show the backup confirmation; a restored wallet
+     * does not redisclose them. I hide setup input sections and reveal Continue only after
+     * persistence succeeds.
+     */
+    private void showWallet() {
+        work(() -> WalletStorageManager.loadWallet(this, walletFile), wallet -> {
+            TextView address = findViewById(R.id.walletAddressText);
+            address.setText(wallet.currentReceiveAddress().toString()); address.setVisibility(View.VISIBLE);
+            TextView phrase = findViewById(R.id.recoveryPhraseText);
+            // Restoring a wallet does not need to expose its already supplied recovery words again.
+            phrase.setText(restored ? "" : numberedWords(wallet.getActiveKeyChain().getMnemonicCode()));
+            phrase.setVisibility(restored ? View.GONE : View.VISIBLE);
+            findViewById(R.id.createPath).setVisibility(View.GONE);
+            findViewById(R.id.restorePath).setVisibility(View.GONE);
+            findViewById(R.id.backupSection).setVisibility(restored ? View.GONE : View.VISIBLE);
+            findViewById(R.id.walletReadySection).setVisibility(View.VISIBLE);
+            findViewById(R.id.continueButton).setVisibility(View.VISIBLE);
+            ((TextView) findViewById(R.id.errorText)).setText("");
+            findViewById(R.id.generateWalletButton).setEnabled(false);
+            findViewById(R.id.restoreWalletButton).setEnabled(false);
+            findViewById(R.id.backupConfirmed).setVisibility(restored ? View.GONE : View.VISIBLE);
+        });
+    }
+    /**
+     * I loop through the ordered mnemonic List and append a one-based number and newline for
+     * each word. The returned String preserves backup order on narrow screens and large fonts;
+     * it is displayed only in the protected creation view and is never logged.
+     * @param words java.util.List<String> supplied by the calling workflow as described above
+     * @return the ordered numbered mnemonic display String for the protected setup view
+     */
+    private String numberedWords(java.util.List<String> words) {
+        StringBuilder display = new StringBuilder();
+        for (int index = 0; index < words.size(); index++) {
+            if (index > 0) display.append("\n");
+            display.append(index + 1).append(".  ").append(words.get(index));
+        }
+        return display.toString();
+    }
+    /**
+     * Android calls this as the screen leaves the foreground. I stop this screen's refresh
+     * callbacks or conceal sensitive displayed data as implemented below, then call the parent
+     * lifecycle method. Wallet mutations remain serialized by the shared service rather than
+     * being discarded with the Activity.
+     */
+    @Override protected void onPause() {
+        if (isFinishing()) ((TextView) findViewById(R.id.recoveryPhraseText)).setText("");
+        super.onPause();
+    }
+    /**
+     * I receive the Bundle supplied by Android before recreation. I save only explicit
+     * workflow identifiers and flags, such as a wallet filename, selected plan ID, or
+     * submitted transaction ID. Mnemonic words and signing keys are not placed in this Bundle.
+     * New Activity instances reconstruct their screen through the existing service.
+     * @param state Bundle supplied by the calling workflow as described above
+     */
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putString("wallet_file", walletFile); // Never put recovery words in saved instance state.
+        state.putBoolean("restored", restored);
     }
 }
