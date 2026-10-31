@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/setup_title" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/setup_description" />
+        <LinearLayout android:id="@+id/createPath" style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/create_new_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/create_description" />
+            <Button android:id="@+id/generateWalletButton" style="@style/UiButtonPrimary" android:text="@string/create_wallet" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/backupSection" style="@style/UiCard" android:visibility="gone">
+            <TextView style="@style/UiSection" android:text="@string/backup_heading" />
+            <TextView style="@style/UiSupporting" android:text="@string/backup_description" />
+            <TextView android:id="@+id/recoveryPhraseText" style="@style/UiAddress" android:text="@string/empty" android:saveEnabled="false" android:textIsSelectable="false" />
+            <TextView style="@style/UiNotice" android:text="@string/phrase_security_warning" />
+            <CheckBox android:id="@+id/backupConfirmed" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:text="@string/backup_confirmed" android:textColor="@color/ui_text" android:textSize="16sp" android:visibility="gone" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/walletReadySection" style="@style/UiCard" android:visibility="gone">
+            <TextView style="@style/UiSection" android:text="@string/wallet_ready_heading" />
+            <TextView android:id="@+id/walletReadyDescription" style="@style/UiCaption" android:text="@string/restore_saved" />
+            <TextView style="@style/UiLabel" android:text="@string/receiving_address_label" />
+            <TextView android:id="@+id/walletAddressText" style="@style/UiAddress" android:text="@string/address_placeholder" />
+        </LinearLayout>
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/continueButton" style="@style/UiButtonPrimary" android:text="@string/continue_label" android:visibility="gone" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

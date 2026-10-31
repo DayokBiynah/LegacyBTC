@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" style="@style/UiCard">
+    <TextView android:id="@+id/emptyTitle" style="@style/UiSection" android:text="@string/empty_state_heading" />
+    <TextView android:id="@+id/emptyMessage" style="@style/UiSupporting" android:text="@string/empty" />
+</LinearLayout>

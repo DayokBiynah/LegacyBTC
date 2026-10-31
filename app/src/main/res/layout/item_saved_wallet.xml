@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" style="@style/UiCard">
+    <TextView android:id="@+id/walletNameText" style="@style/UiSection" android:text="@string/wallet_identity_placeholder" />
+    <TextView style="@style/UiNetwork" android:text="@string/testnet_only" />
+    <TextView android:id="@+id/savedAddressText" style="@style/UiAddress" android:text="@string/address_placeholder" />
+    <Button android:id="@+id/openSavedWalletButton" style="@style/UiButtonPrimary" android:text="@string/open_wallet_action" />
+    <Button android:id="@+id/deleteSavedWalletButton" style="@style/UiButtonDestructive" android:text="@string/delete" />
+</LinearLayout>

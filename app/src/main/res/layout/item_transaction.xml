@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" style="@style/UiCard">
+    <TextView android:id="@+id/transactionTypeText" style="@style/UiSection" android:text="@string/empty" />
+    <TextView android:id="@+id/transactionAmountText" style="@style/UiTitle" android:text="@string/empty" />
+    <TextView android:id="@+id/transactionStatusText" style="@style/UiCaption" android:text="@string/empty" />
+    <TextView android:id="@+id/transactionDateText" style="@style/UiCaption" android:text="@string/empty" />
+    <TextView style="@style/UiLabel" android:text="@string/transaction_id_label" />
+    <TextView android:id="@+id/transactionIdText" style="@style/UiAddress" android:text="@string/empty" />
+    <Button android:id="@+id/transactionDetailsButton" style="@style/UiButtonQuiet" android:text="@string/view_details" />
+</LinearLayout>

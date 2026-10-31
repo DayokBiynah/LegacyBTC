@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/restore_title" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/restore_description" />
+        <LinearLayout android:id="@+id/restorePath" style="@style/UiCard">
+            <TextView style="@style/UiLabel" android:text="@string/phrase_hint" android:labelFor="@id/recoveryPhraseInput" />
+            <EditText android:id="@+id/recoveryPhraseInput" style="@style/UiInput" android:inputType="textMultiLine|textNoSuggestions" android:importantForAutofill="no" android:saveEnabled="false" android:minLines="3" android:gravity="top|start" />
+            <TextView style="@style/UiLabel" android:text="@string/passphrase_hint" android:labelFor="@id/passphraseInput" />
+            <EditText android:id="@+id/passphraseInput" style="@style/UiInput" android:inputType="textPassword" android:importantForAutofill="no" android:saveEnabled="false" />
+            <Button android:id="@+id/restoreWalletButton" style="@style/UiButtonPrimary" android:text="@string/restore_wallet" />
+        </LinearLayout>
+        <TextView android:id="@+id/restoredAddressText" style="@style/UiFeedback" android:text="@string/empty" />
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/continueButton" style="@style/UiButtonPrimary" android:text="@string/continue_label" android:visibility="gone" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

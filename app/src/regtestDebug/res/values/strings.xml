@@ -1,0 +1,4 @@
+<resources>
+ <string name="app_name">LegacyBTC Regtest</string>
+ <string name="testnet_only">Regtest: local demonstration funds only</string>
+</resources>

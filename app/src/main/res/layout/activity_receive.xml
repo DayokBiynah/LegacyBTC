@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/title" style="@style/UiTitle" android:text="@string/receive" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/description" style="@style/UiSupporting" android:text="@string/receive_description" />
+        <LinearLayout style="@style/UiCard">
+            <ImageView android:id="@+id/qrImage" android:layout_width="match_parent" android:layout_height="240dp" android:adjustViewBounds="true" android:scaleType="fitCenter" android:padding="16dp" android:background="@drawable/bg_qr" android:contentDescription="@string/qr_description" android:layout_marginBottom="20dp" />
+            <TextView style="@style/UiLabel" android:text="@string/receiving_address_label" />
+            <TextView android:id="@+id/walletAddressText" style="@style/UiAddress" android:text="@string/address_placeholder" />
+            <Button android:id="@+id/copyAddressButton" style="@style/UiButtonPrimary" android:text="@string/copy_address" />
+            <Button android:id="@+id/generateAddressButton" style="@style/UiButtonSecondary" android:text="@string/generate_address" />
+            <Button android:id="@+id/shareButton" style="@style/UiButtonSecondary" android:text="@string/share_address" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/beneficiary_information_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/beneficiary_info_description" />
+            <TextView style="@style/UiLabel" android:text="@string/public_key_label" />
+            <TextView android:id="@+id/beneficiaryPublicKeyText" style="@style/UiAddress" android:text="@string/empty" />
+            <Button android:id="@+id/copyBeneficiaryButton" style="@style/UiButtonQuiet" android:text="@string/copy_beneficiary_info" />
+        </LinearLayout>
+        <TextView android:id="@+id/errorText" style="@style/UiFeedback" android:text="@string/empty" />
+        <Button android:id="@+id/backButton" style="@style/UiButtonQuiet" android:text="@string/back" />
+    </LinearLayout>
+</ScrollView>

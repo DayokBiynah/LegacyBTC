@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/screenScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/screen_padding">
+        <TextView android:id="@+id/titleText" style="@style/UiTitle" android:text="@string/app_name" />
+        <TextView android:id="@+id/networkStatusText" style="@style/UiNetwork" android:text="@string/testnet_only" />
+        <TextView android:id="@+id/subtitleText" style="@style/UiSupporting" android:text="@string/welcome_subtitle" />
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/welcome_heading" />
+            <TextView style="@style/UiSupporting" android:text="@string/welcome_description" />
+            <Button android:id="@+id/createWalletButton" style="@style/UiButtonPrimary" android:text="@string/create_wallet" />
+            <Button android:id="@+id/restoreWalletButton" style="@style/UiButtonSecondary" android:text="@string/restore_wallet" />
+        </LinearLayout>
+        <LinearLayout style="@style/UiCard">
+            <TextView style="@style/UiSection" android:text="@string/saved_wallets_heading" />
+            <TextView style="@style/UiCaption" android:text="@string/open_description" />
+            <Button android:id="@+id/openWalletButton" style="@style/UiButtonSecondary" android:text="@string/open_wallet" />
+        </LinearLayout>
+        <TextView style="@style/UiNotice" android:text="@string/testnet_safety" />
+    </LinearLayout>
+</ScrollView>

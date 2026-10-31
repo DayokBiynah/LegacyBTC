@@ -1,0 +1,4 @@
+<resources>
+    <!-- The same dark design is used in both system modes. -->
+    <style name="Theme.LegacyBTC" parent="Base.Theme.LegacyBTC" />
+</resources>
